@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Waste & Yield — Praline</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --card: #f9f8f5;
+    --border: #e8e4da;
+    --border-hover: #d4cfc0;
+    --accent: #8b6914;
+    --accent-light: #f5eedc;
+    --accent-mid: #c49a2a;
+    --green: #2d7a5a;
+    --green-light: #e8f5ee;
+    --red: #b83232;
+    --red-light: #fdf0f0;
+    --blue: #2c5f8a;
+    --blue-light: #edf4fb;
+    --text: #1a1612;
+    --text-2: #5a5040;
+    --text-3: #8a7c68;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  /* ── SPLASH ── */
+  #splash {
+    position: fixed; inset: 0;
+    background: var(--surface);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+  }
+
+  #splash.hidden { display: none; }
+
+  .splash-logo {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .splash-sub {
+    font-size: 13px;
+    color: var(--text-3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .splash-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+  }
+
+  .branch-list {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .branch-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Sarabun', sans-serif;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+
+  .branch-btn:hover {
+    border-color: var(--accent-mid);
+    background: var(--accent-light);
+  }
+
+  .branch-btn-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .branch-btn-code { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: var(--text-3); background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 54px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: var(--shadow);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+  .logo-yield { color: var(--accent); }
+
+  .branch-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-light);
+    border: 1px solid #ddd0a8;
+    border-radius: 20px;
+    padding: 5px 10px 5px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .branch-pill:hover { background: #ede5c8; }
+  .branch-pill-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+  /* ── TABS ── */
+  .tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    padding: 13px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    border-top: none; border-left: none; border-right: none;
+    background: none;
+    font-family: 'Sarabun', sans-serif;
+    white-space: nowrap;
+    transition: all 0.15s;
+    letter-spacing: 0.2px;
+  }
+
+  .tab:hover { color: var(--text-2); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── MAIN ── */
+  main { max-width: 680px; margin: 0 auto; padding: 16px 12px 80px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  @media (max-width: 420px) {
+    main { padding: 12px 10px 80px; }
+    .form-card { padding: 16px 14px; }
+    .tab { padding: 13px 12px; font-size: 12px; }
+    .type-btn { padding: 13px 8px; font-size: 14px; }
+    .btn-submit { font-size: 16px; padding: 15px; }
+    .log-card { padding: 12px 13px; }
+    .branch-pill { font-size: 11px; padding: 4px 9px 4px 7px; }
+  }
+
+  /* ── TYPE SELECTOR ── */
+  .type-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .type-btn {
+    padding: 11px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+
+  .type-btn:hover { border-color: var(--border-hover); }
+
+  .type-btn.active-waste {
+    background: var(--red-light); border-color: #e0a0a0; color: var(--red);
+  }
+
+  .type-btn.active-yield {
+    background: var(--green-light); border-color: #90c8a8; color: var(--green);
+  }
+
+  .type-btn.active-all {
+    background: var(--accent-light); border-color: #d4b870; color: var(--accent);
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+  }
+
+  @media (max-width: 480px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+
+  input, select, textarea {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 13px;
+    color: var(--text);
+    font-size: 16px;
+    font-family: 'Sarabun', sans-serif;
+    transition: all 0.15s;
+    width: 100%;
+    appearance: none; -webkit-appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
+    background: #fff;
+  }
+
+  textarea { resize: vertical; min-height: 70px; }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7c68' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 34px;
+  }
+
+  select option { background: #fff; }
+
+  .weight-wrapper { display: flex; gap: 7px; }
+  .weight-wrapper input { flex: 1; }
+  .unit-select { width: 82px; flex-shrink: 0; }
+
+  /* ── INGREDIENT INPUT WITH DATALIST ── */
+  .ingredient-wrap { position: relative; }
+
+  /* ── PHOTO UPLOAD ── */
+  .photo-upload {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+    background: var(--card);
+  }
+
+  .photo-upload:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+  .photo-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-icon { font-size: 24px; margin-bottom: 6px; }
+  .photo-label { font-size: 13px; color: var(--text-3); }
+  .photo-label strong { color: var(--accent); }
+
+  .photo-preview { display: none; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+  .photo-preview-item { position: relative; width: 72px; height: 72px; }
+  .photo-preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 7px; border: 1.5px solid var(--border); }
+  .photo-remove {
+    position: absolute; top: -5px; right: -5px;
+    background: var(--red); color: #fff;
+    border: none; border-radius: 50%;
+    width: 18px; height: 18px;
+    font-size: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── SUBMIT BTN ── */
+  .btn-submit {
+    margin-top: 18px; width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    font-size: 15px; font-weight: 700;
+    font-family: 'Sarabun', sans-serif;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 2px 8px rgba(139,105,20,0.25);
+  }
+
+  .btn-submit:hover { background: #7a5c10; transform: translateY(-1px); }
+  .btn-submit:active { transform: none; }
+
+  /* ── LOG ── */
+  .log-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+  }
+
+  .log-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+  .count-badge {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2px 9px;
+    font-size: 12px; color: var(--text-3); font-weight: 600;
+  }
+
+  .filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+
+  .filter-select {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 7px 10px;
+    color: var(--text); font-size: 12px; font-family: 'Sarabun', sans-serif;
+    appearance: none; -webkit-appearance: none;
+  }
+
+  .filter-select:focus { outline: none; border-color: var(--accent-mid); }
+
+  .btn-sm {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text-2);
+    padding: 6px 10px; font-size: 12px; cursor: pointer;
+    font-family: 'Sarabun', sans-serif;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+
+  .btn-sm:hover { border-color: var(--border-hover); }
+
+  .btn-export {
+    background: var(--green-light); border: 1px solid #a0d4b8;
+    border-radius: var(--radius-sm); color: var(--green);
+    padding: 7px 13px; font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: 'Sarabun', sans-serif;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+
+  .btn-export:hover { background: #d0eddf; }
+
+  /* ── LOG CARD ── */
+  .log-empty { text-align: center; padding: 50px 20px; color: var(--text-3); }
+  .log-empty .ei { font-size: 36px; margin-bottom: 10px; }
+
+  .log-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s;
+  }
+
+  .log-card:hover { border-color: var(--border-hover); }
+
+  .log-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .log-left { flex: 1; min-width: 0; }
+  .log-name { font-size: 15px; font-weight: 700; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .log-meta { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; border-radius: 5px;
+    padding: 2px 7px; border: 1px solid;
+    font-weight: 600;
+  }
+
+  .tag-waste { background: var(--red-light); color: var(--red); border-color: #e0a0a0; }
+  .tag-yield { background: var(--green-light); color: var(--green); border-color: #90c8a8; }
+  .tag-all { background: var(--accent-light); color: var(--accent); border-color: #d4b870; }
+  .tag-dept { background: var(--blue-light); color: var(--blue); border-color: #a0c0e0; }
+  .tag-neutral { background: var(--card); color: var(--text-2); border-color: var(--border); }
+  .tag-reason { background: #fdf8ee; color: #8a6010; border-color: #e8d898; }
+
+  .log-right { text-align: right; flex-shrink: 0; }
+  .log-weight { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500; color: var(--accent); white-space: nowrap; }
+  .log-weight-unit { font-size: 11px; color: var(--text-3); }
+
+  .log-note {
+    font-size: 12px; color: var(--text-2); margin: 7px 0;
+    padding: 7px 10px; background: var(--card);
+    border-radius: 6px; border-left: 2px solid var(--border-hover);
+    line-height: 1.5;
+  }
+
+  .log-photos { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+  .log-photos img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s; }
+  .log-photos img:hover { border-color: var(--accent-mid); }
+
+  .log-actions {
+    display: flex; justify-content: flex-end; gap: 6px;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-edit { color: var(--blue); }
+  .btn-edit:hover { border-color: var(--blue); background: var(--blue-light); }
+  .btn-del { color: var(--red); }
+  .btn-del:hover { border-color: var(--red); background: var(--red-light); }
+
+  /* ── SUMMARY ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 8px; }
+  .stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500; color: var(--text); line-height: 1.1; }
+  .stat-unit { font-size: 11px; color: var(--text-3); margin-top: 3px; font-family: 'Sarabun', sans-serif; }
+  .stat-accent { color: var(--accent); }
+  .stat-red { color: var(--red); }
+  .stat-green { color: var(--green); }
+
+  .dept-breakdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .breakdown-title { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+
+  .dept-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .dept-row:last-child { border-bottom: none; }
+  .dept-label { min-width: 75px; font-size: 13px; font-weight: 600; color: var(--text-2); }
+  .dept-bar-wrap { flex: 1; height: 5px; background: var(--card); border-radius: 3px; overflow: hidden; }
+  .dept-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-mid)); border-radius: 3px; transition: width 0.5s ease; }
+  .dept-val { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent); min-width: 65px; text-align: right; }
+
+  /* ── MODAL ── */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35); z-index: 500;
+    align-items: flex-end; justify-content: center;
+    padding: 0;
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 600px;
+    max-height: 90vh; overflow-y: auto;
+    padding: 20px 20px 32px;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+  }
+
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 18px; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+
+  .btn-save {
+    flex: 1; padding: 12px; background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 700; font-family: 'Sarabun', sans-serif; cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-save:hover { background: #7a5c10; }
+
+  .btn-cancel {
+    flex: 1; padding: 12px; background: var(--card); color: var(--text-2);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer;
+  }
+
+  /* ── CONFIRM ── */
+  .confirm-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 600;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+
+  .confirm-backdrop.open { display: flex; }
+
+  .confirm-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+    width: 100%; max-width: 320px; text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+
+  .confirm-icon { font-size: 32px; margin-bottom: 10px; }
+  .confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 7px; }
+  .confirm-desc { font-size: 13px; color: var(--text-2); margin-bottom: 18px; line-height: 1.5; }
+  .confirm-row { display: flex; gap: 10px; }
+
+  .btn-confirm-del {
+    flex: 1; padding: 11px; background: var(--red); color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 700; font-family: 'Sarabun', sans-serif; cursor: pointer;
+  }
+
+  .btn-confirm-cancel {
+    flex: 1; padding: 11px; background: var(--card); color: var(--text-2);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 16px; left: 12px; right: 12px;
+    transform: none;
+    background: #1a2e1a; color: #6dd49a;
+    border: 1px solid rgba(109,212,154,0.3);
+    padding: 13px 18px; border-radius: 10px;
+    font-weight: 600; font-size: 14px;
+    display: none; align-items: center; gap: 8px;
+    z-index: 999;
+    box-shadow: var(--shadow-md);
+    animation: slideUp 0.25s ease;
+  }
+
+  .toast.show { display: flex; }
+  .toast.err { background: #2a1010; color: #e06060; border-color: rgba(224,96,96,0.3); }
+
+  @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ── LIGHTBOX ── */
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 800; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 88vh; border-radius: 10px; }
+  .lightbox-close { position: absolute; top: 16px; right: 16px; background: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  /* ── TYPE HEADER ACCENT ── */
+  .type-header-waste { color: var(--red); }
+  .type-header-yield { color: var(--green); }
+  .type-header-all { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══ SPLASH ═══ -->
+<div id="splash">
+  <div class="splash-logo">Praline</div>
+  <div class="splash-sub">Waste &amp; Yield</div>
+  <div class="splash-label">เลือกสาขาของคุณ</div>
+  <div class="branch-list">
+    <button class="branch-btn" onclick="selectBranch('001','Bangna Sathorn')">
+      <span class="branch-btn-name">Bangna Sathorn</span>
+      <span class="branch-btn-code">001</span>
+    </button>
+    <button class="branch-btn" onclick="selectBranch('002','Praline Ratchapruke')">
+      <span class="branch-btn-name">Praline Ratchapruke</span>
+      <span class="branch-btn-code">002</span>
+    </button>
+    <button class="branch-btn" onclick="selectBranch('003','Praline Bangna')">
+      <span class="branch-btn-name">Praline Bangna</span>
+      <span class="branch-btn-code">003</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">🍮</div>
+    <span class="logo-text">Praline <span class="logo-yield">W&amp;Y</span></span>
+  </div>
+  <div class="branch-pill" onclick="changeBranch()" title="เปลี่ยนสาขา">
+    <div class="branch-pill-dot"></div>
+    <span id="headerBranch">—</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('form',this)">📝 บันทึก</button>
+  <button class="tab" onclick="switchTab('log',this)">📋 รายการ</button>
+  <button class="tab" onclick="switchTab('summary',this)">📊 สรุป</button>
+</div>
+
+<!-- DATALISTS -->
+<datalist id="dl-kitchen">
+  <option value="ฟินเลย์ ไอซ์เบิร์ก ตัดราก">
+  <option value="เรดคอรัล (Red Coral)">
+  <option value="โรเมนคอส (Romaine Cos)">
+  <option value="เบบี้คอส (Baby Cos)">
+  <option value="ร็อกเก็ตป่าตัดราก (Wild Rocket)">
+  <option value="เลมอน (Lemon)">
+  <option value="ส้มซันคิส (Sunkist)">
+  <option value="มะเขือเทศราชินีไทย">
+  <option value="มะเขือเทศท้อ">
+  <option value="พริกจาลาปิโน (Jalapeno)">
+  <option value="ผักชีลาว (Dill)">
+  <option value="แซลมอนสด (Salmon)">
+  <option value="แซลมอนรมควัน (Smoked Salmon)">
+  <option value="กุ้งขาว (Size 25 ตัว/กก.)">
+  <option value="เนื้อสตริปลอยน์ Angus">
+  <option value="เบคอน Roy">
+  <option value="เบคอน TGM ปกติ">
+  <option value="เบคอน TGM หนา">
+  <option value="ไส้กรอก Chorizo">
+  <option value="ไก่ทอดคาราอะเกะ (Frozen)">
+  <option value="นมสด เมจิ (2L)">
+  <option value="น้ำมันถั่วเหลือง กุ๊ก">
+  <option value="น้ำสลัดงาญี่ปุ่น คิวพี (1L)">
+  <option value="ซอสมะเขือเทศ โรซ่า">
+  <option value="นมข้นจืด คาร์เนชั่น (1L)">
+  <option value="ครีมเทียมข้นหวาน คาร์เนชั่น (2kg)">
+  <option value="น้ำผึ้ง ดอยคำ">
+  <option value="กาแฟ Medium">
+  <option value="Alfredo Sauce (CK)">
+  <option value="Truffle Soup (CK)">
+  <option value="Bolognese Sauce (CK)">
+  <option value="Ebiko Pink Sauce (CK)">
+  <option value="Pesto Sauce (CK)">
+  <option value="Tomato Pizza Base (CK)">
+  <option value="วิปปิ้งครีม Milac (1L)">
+  <option value="ชีส Padano">
+  <option value="ชีส Gruyere">
+  <option value="เหล้า Gin">
+</datalist>
+
+<main>
+
+  <!-- ═══ FORM ═══ -->
+  <div class="panel active" id="panel-form">
+
+    <!-- Type Selector -->
+    <div class="type-selector">
+      <button class="type-btn active-all" id="btn-all" onclick="setType('all')">🟡 Waste &amp; Yield</button>
+      <button class="type-btn" id="btn-waste" onclick="setType('waste')">🔴 Waste</button>
+    </div>
+
+    <div class="form-card">
+      <div class="form-grid">
+
+        <div class="form-group full">
+          <label>วันที่บันทึก</label>
+          <input type="date" id="f-date">
+        </div>
+
+        <div class="form-group">
+          <label>แผนก</label>
+          <select id="f-dept" onchange="onDeptChange()">
+            <option value="">— เลือกแผนก —</option>
+            <option>ครัวร้อน (Hot Kitchen)</option>
+            <option>ครัวเย็น (Cold Kitchen)</option>
+            <option>เบเกอรี่ (Bakery)</option>
+            <option>เครื่องดื่ม (Beverage)</option>
+            <option>คลังสินค้า (Storeroom)</option>
+            <option>แผนกหน้าร้าน (Front of House)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>ชื่อผู้รายงาน</label>
+          <input type="text" id="f-reporter" placeholder="ชื่อ-นามสกุล">
+        </div>
+
+        <div class="form-group full">
+          <label id="ingredient-label">ชื่อวัตถุดิบ</label>
+          <input type="text" id="f-item" placeholder="พิมพ์หรือเลือกวัตถุดิบ" autocomplete="off">
+          <div style="font-size:11px; color:var(--text-3); margin-top:3px;" id="ingredient-hint"></div>
+        </div>
+
+        <!-- Waste fields -->
+        <div class="form-group" id="waste-weight-group">
+          <label id="waste-weight-label">น้ำหนัก Waste</label>
+          <div class="weight-wrapper">
+            <input type="number" id="f-waste-weight" placeholder="0.00" step="0.01" min="0">
+            <select id="f-waste-unit" class="unit-select" onchange="mirrorUnit()">
+              <option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Yield fields -->
+        <div class="form-group" id="yield-weight-group">
+          <label>น้ำหนักหลังแต่ง</label>
+          <div class="weight-wrapper">
+            <input type="number" id="f-yield-weight" placeholder="0.00" step="0.01" min="0">
+            <select id="f-yield-unit" class="unit-select">
+              <option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group full" id="reason-group">
+          <label>สาเหตุ</label>
+          <select id="f-reason">
+            <option value="">— เลือกสาเหตุ —</option>
+            <option>หมดอายุ / เน่าเสีย</option>
+            <option>เศษตัดแต่ง</option>
+            <option>ปรุงพลาด</option>
+            <option>ส่งกลับ</option>
+            <option>อุบัติเหตุ / หก</option>
+            <option>จัดเก็บผิดวิธี</option>
+            <option>อื่นๆ</option>
+          </select>
+        </div>
+
+        <div class="form-group full">
+          <label>หมายเหตุ</label>
+          <textarea id="f-note" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+        </div>
+
+        <div class="form-group full">
+          <label>รูปถ่าย</label>
+          <div class="photo-upload" id="photoUpload">
+            <input type="file" accept="image/*" multiple id="f-photos" onchange="previewPhotos(this)">
+            <div class="photo-icon">📷</div>
+            <div class="photo-label">แตะเพื่อถ่ายรูป หรือ <strong>เลือกจากแกลเลอรี่</strong></div>
+          </div>
+          <div class="photo-preview" id="photoPreview"></div>
+        </div>
+
+      </div>
+      <button class="btn-submit" onclick="submitEntry()">✅ บันทึกรายการ</button>
+    </div>
+  </div>
+
+  <!-- ═══ LOG ═══ -->
+  <div class="panel" id="panel-log">
+    <div class="log-toolbar">
+      <div class="log-title">รายการ <span class="count-badge" id="logCount">0</span></div>
+      <button class="btn-export" onclick="exportCSV()">⬇ ส่งออก CSV</button>
+    </div>
+    <div class="filters">
+      <select class="filter-select" id="filterType" onchange="renderLog()">
+        <option value="">ทุกประเภท</option>
+        <option value="waste">Waste</option>
+        <option value="all">Waste &amp; Yield</option>
+      </select>
+      <select class="filter-select" id="filterDept" onchange="renderLog()">
+        <option value="">ทุกแผนก</option>
+        <option>ครัวร้อน (Hot Kitchen)</option>
+        <option>ครัวเย็น (Cold Kitchen)</option>
+        <option>เบเกอรี่ (Bakery)</option>
+        <option>เครื่องดื่ม (Beverage)</option>
+        <option>คลังสินค้า (Storeroom)</option>
+        <option>แผนกหน้าร้าน (Front of House)</option>
+      </select>
+      <input type="date" class="filter-select" id="filterDate" onchange="renderLog()">
+      <button class="btn-sm" onclick="clearFilters()">✕ ล้าง</button>
+    </div>
+    <div id="logList"></div>
+  </div>
+
+  <!-- ═══ SUMMARY ═══ -->
+  <div class="panel" id="panel-summary">
+    <div class="summary-grid">
+      <div class="stat-card">
+        <div class="stat-label">Waste วันนี้</div>
+        <div class="stat-value stat-red" id="s-waste-count">0</div>
+        <div class="stat-unit">รายการ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Yield วันนี้</div>
+        <div class="stat-value stat-green" id="s-yield-count">0</div>
+        <div class="stat-unit">รายการ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">น้ำหนัก Waste (kg)</div>
+        <div class="stat-value stat-red" id="s-waste-kg">0.00</div>
+        <div class="stat-unit">กิโลกรัม</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">น้ำหนัก Yield (kg)</div>
+        <div class="stat-value stat-green" id="s-yield-kg">0.00</div>
+        <div class="stat-unit">กิโลกรัม</div>
+      </div>
+    </div>
+    <div class="dept-breakdown">
+      <div class="breakdown-title">แยกตามแผนก (ทั้งหมด)</div>
+      <div id="deptBreakdown"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ แก้ไขรายการ</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>วันที่</label><input type="date" id="e-date"></div>
+      <div class="form-group">
+        <label>แผนก</label>
+        <select id="e-dept">
+          <option value="">— เลือก —</option>
+          <option>ครัวร้อน (Hot Kitchen)</option>
+          <option>ครัวเย็น (Cold Kitchen)</option>
+          <option>เบเกอรี่ (Bakery)</option>
+          <option>เครื่องดื่ม (Beverage)</option>
+          <option>คลังสินค้า (Storeroom)</option>
+          <option>แผนกหน้าร้าน (Front of House)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>ชื่อผู้รายงาน</label><input type="text" id="e-reporter"></div>
+      <div class="form-group full"><label>ชื่อวัตถุดิบ</label><input type="text" id="e-item"></div>
+      <div class="form-group">
+        <label>น้ำหนัก Waste</label>
+        <div class="weight-wrapper">
+          <input type="number" id="e-waste-weight" step="0.01" min="0">
+          <select id="e-waste-unit" class="unit-select"><option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>น้ำหนัก Yield</label>
+        <div class="weight-wrapper">
+          <input type="number" id="e-yield-weight" step="0.01" min="0">
+          <select id="e-yield-unit" class="unit-select"><option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option></select>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>สาเหตุ</label>
+        <select id="e-reason">
+          <option value="">— เลือก —</option>
+          <option>หมดอายุ / เน่าเสีย</option>
+          <option>เศษตัดแต่ง</option>
+          <option>ปรุงพลาด</option>
+          <option>ส่งกลับ</option>
+          <option>อุบัติเหตุ / หก</option>
+          <option>จัดเก็บผิดวิธี</option>
+          <option>อื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>หมายเหตุ</label><textarea id="e-note"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEditModal()">ยกเลิก</button>
+      <button class="btn-save" onclick="saveEdit()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="confirm-backdrop" id="confirmDlg">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">ลบรายการนี้?</div>
+    <div class="confirm-desc" id="confirmDesc"></div>
+    <div class="confirm-row">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="btn-confirm-del" onclick="doDelete()">ลบเลย</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const KITCHEN_DEPTS = ['ครัวร้อน (Hot Kitchen)', 'ครัวเย็น (Cold Kitchen)', 'เบเกอรี่ (Bakery)'];
+
+  let entries = [];
+  try { entries = JSON.parse(localStorage.getItem('pralineWY') || '[]'); } catch(e) { entries = []; }
+  let photoDataURLs = [];
+  let editingId = null;
+  let deletingId = null;
+  let currentType = 'all';
+  let currentBranch = { code: '', name: '' };
+
+  // ── Init ──
+  (function init() {
+    const saved = localStorage.getItem('pralineBranch');
+    if (saved) {
+      try {
+        const b = JSON.parse(saved);
+        currentBranch = b;
+        document.getElementById('splash').classList.add('hidden');
+        document.getElementById('headerBranch').textContent = b.name;
+      } catch(e) {}
+    }
+    const now = new Date();
+    document.getElementById('f-date').value = now.toISOString().slice(0,10);
+    updateTypeUI();
+    updateWeightFields();
+  })();
+
+  function selectBranch(code, name) {
+    currentBranch = { code, name };
+    localStorage.setItem('pralineBranch', JSON.stringify(currentBranch));
+    document.getElementById('headerBranch').textContent = name;
+    document.getElementById('splash').classList.add('hidden');
+  }
+
+  function changeBranch() {
+    document.getElementById('splash').classList.remove('hidden');
+  }
+
+  function save() {
+    localStorage.setItem('pralineWY', JSON.stringify(entries));
+  }
+
+  function switchTab(tab, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    el.classList.add('active');
+    if (tab === 'log') renderLog();
+    if (tab === 'summary') renderSummary();
+  }
+
+  // ── Type ──
+  function setType(t) {
+    currentType = t;
+    updateTypeUI();
+    updateWeightFields();
+  }
+
+  function updateTypeUI() {
+    ['waste','all'].forEach(t => {
+      const btn = document.getElementById('btn-' + t);
+      if (btn) btn.className = 'type-btn' + (currentType === t ? ' active-' + t : '');
+    });
+  }
+
+  function mirrorUnit() {
+    if (currentType !== 'all') return;
+    const wasteUnit = document.getElementById('f-waste-unit').value;
+    document.getElementById('f-yield-unit').value = wasteUnit;
+  }
+
+  function syncUnit(changed) {}
+
+  function updateWeightFields() {
+    const wg = document.getElementById('waste-weight-group');
+    const yg = document.getElementById('yield-weight-group');
+    const rg = document.getElementById('reason-group');
+    const wLabel = document.getElementById('waste-weight-label');
+
+    if (currentType === 'waste') {
+      wg.style.display = '';
+      yg.style.display = 'none';
+      rg.style.display = '';
+      if (wLabel) wLabel.textContent = 'น้ำหนัก Waste';
+    } else {
+      wg.style.display = '';
+      yg.style.display = '';
+      rg.style.display = 'none';
+      if (wLabel) wLabel.textContent = 'น้ำหนักที่ซื้อมา';
+      mirrorUnit();
+    }
+  }
+
+  // ── Dept change — show/hide datalist ──
+  function onDeptChange() {
+    const dept = document.getElementById('f-dept').value;
+    const isKitchen = KITCHEN_DEPTS.includes(dept);
+    const input = document.getElementById('f-item');
+    const hint = document.getElementById('ingredient-hint');
+    if (isKitchen) {
+      input.setAttribute('list', 'dl-kitchen');
+      hint.textContent = '💡 เลือกจากรายการวัตถุดิบมาตรฐาน หรือพิมพ์เองได้';
+    } else {
+      input.removeAttribute('list');
+      hint.textContent = '✏️ พิมพ์ชื่อวัตถุดิบ';
+    }
+  }
+
+  // ── Photo ──
+  function previewPhotos(input) {
+    photoDataURLs = [];
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = ''; preview.style.display = 'flex';
+    Array.from(input.files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const idx = photoDataURLs.length;
+        photoDataURLs.push(e.target.result);
+        const item = document.createElement('div');
+        item.className = 'photo-preview-item';
+        item.innerHTML = `<img src="${e.target.result}"><button class="photo-remove" onclick="removePhoto(${idx})">✕</button>`;
+        preview.appendChild(item);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function removePhoto(idx) {
+    photoDataURLs.splice(idx, 1);
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    photoDataURLs.forEach((src, i) => {
+      const item = document.createElement('div');
+      item.className = 'photo-preview-item';
+      item.innerHTML = `<img src="${src}"><button class="photo-remove" onclick="removePhoto(${i})">✕</button>`;
+      preview.appendChild(item);
+    });
+    if (!photoDataURLs.length) preview.style.display = 'none';
+  }
+
+  // ── Submit ──
+  function submitEntry() {
+    const date = document.getElementById('f-date').value;
+    const dept = document.getElementById('f-dept').value;
+    const reporter = document.getElementById('f-reporter').value.trim();
+    const item = document.getElementById('f-item').value.trim();
+    const reason = document.getElementById('f-reason').value;
+    const note = document.getElementById('f-note').value.trim();
+    const wasteW = document.getElementById('f-waste-weight').value;
+    const wasteU = document.getElementById('f-waste-unit').value;
+    const yieldW = document.getElementById('f-yield-weight').value;
+    const yieldU = document.getElementById('f-yield-unit').value;
+
+    if (!date || !dept || !reporter || !item) { showToast('⚠️ กรุณากรอกข้อมูลให้ครบ', true); return; }
+    if (currentType === 'waste' && !reason) { showToast('⚠️ กรุณาเลือกสาเหตุ', true); return; }
+    if ((currentType === 'waste') && !wasteW) { showToast('⚠️ กรุณากรอกน้ำหนัก Waste', true); return; }
+    if (currentType === 'all' && (!wasteW || !yieldW)) { showToast('⚠️ กรุณากรอกน้ำหนักให้ครบทั้งสองช่อง', true); return; }
+
+    const entry = {
+      id: Date.now(), date, dept, reporter, item, reason, note,
+      type: currentType,
+      branchCode: currentBranch.code, branchName: currentBranch.name,
+      wasteWeight: wasteW ? parseFloat(wasteW) : null, wasteUnit: wasteU,
+      yieldWeight: yieldW ? parseFloat(yieldW) : null, yieldUnit: yieldU,
+      photos: [...photoDataURLs]
+    };
+    entries.unshift(entry);
+    save();
+
+    ['f-item','f-waste-weight','f-yield-weight','f-note'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-reason').value = '';
+    document.getElementById('f-photos').value = '';
+    document.getElementById('photoPreview').innerHTML = '';
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('ingredient-hint').textContent = '';
+    photoDataURLs = [];
+
+    showToast('✅ บันทึกเรียบร้อย');
+  }
+
+  function showToast(msg, isErr = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── Render Log ──
+  function typeLabel(type) {
+    if (type === 'waste') return '<span class="tag tag-waste">Waste</span>';
+    return '<span class="tag tag-all">Waste &amp; Yield</span>';
+  }
+
+  function renderLog() {
+    const list = document.getElementById('logList');
+    const tf = document.getElementById('filterType').value;
+    const df = document.getElementById('filterDept').value;
+    const dtf = document.getElementById('filterDate').value;
+
+    let filtered = entries.filter(e => {
+      if (tf && e.type !== tf) return false;
+      if (df && e.dept !== df) return false;
+      if (dtf && e.date !== dtf) return false;
+      return true;
+    });
+
+    document.getElementById('logCount').textContent = filtered.length;
+
+    if (!filtered.length) {
+      list.innerHTML = `<div class="log-empty"><div class="ei">📭</div><p>ยังไม่มีรายการ</p></div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(e => {
+      const weightLine = [];
+      if (e.wasteWeight != null) weightLine.push(`<span style="color:var(--red)">${e.type === 'all' ? 'ซื้อมา' : 'Waste'}: ${e.wasteWeight} ${e.wasteUnit}</span>`);
+      if (e.yieldWeight != null) weightLine.push(`<span style="color:var(--green)">หลังแต่ง: ${e.yieldWeight} ${e.yieldUnit}</span>`);
+
+      return `<div class="log-card">
+        <div class="log-top">
+          <div class="log-left">
+            <div class="log-name">${esc(e.item)}</div>
+            <div class="log-meta">
+              ${typeLabel(e.type)}
+              <span class="tag tag-dept">${e.dept.split(' ')[0]}</span>
+              <span class="tag tag-neutral">📅 ${e.date}</span>
+              <span class="tag tag-neutral">👤 ${esc(e.reporter)}</span>
+              ${e.reason ? `<span class="tag tag-reason">⚠️ ${esc(e.reason)}</span>` : ''}
+            </div>
+          </div>
+          <div class="log-right" style="font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:right; line-height:1.8;">
+            ${weightLine.join('<br>')}
+          </div>
+        </div>
+        ${e.note ? `<div class="log-note">💬 ${esc(e.note)}</div>` : ''}
+        ${e.photos && e.photos.length ? `<div class="log-photos">${e.photos.map(p => `<img src="${p}" onclick="openLightbox('${p}')">`).join('')}</div>` : ''}
+        <div class="log-actions">
+          <button class="btn-sm btn-edit" onclick="openEdit(${e.id})">✏️ แก้ไข</button>
+          <button class="btn-sm btn-del" onclick="promptDel(${e.id},'${esc(e.item)}')">🗑️ ลบ</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function clearFilters() {
+    ['filterType','filterDept','filterDate'].forEach(id => document.getElementById(id).value = '');
+    renderLog();
+  }
+
+  // ── Delete ──
+  function promptDel(id, name) {
+    deletingId = id;
+    document.getElementById('confirmDesc').textContent = `"${name}" จะถูกลบถาวร`;
+    document.getElementById('confirmDlg').classList.add('open');
+  }
+
+  function doDelete() {
+    entries = entries.filter(e => e.id !== deletingId);
+    save(); closeConfirm(); renderLog();
+    showToast('🗑️ ลบรายการแล้ว');
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmDlg').classList.remove('open');
+    deletingId = null;
+  }
+
+  // ── Edit ──
+  function openEdit(id) {
+    const e = entries.find(x => x.id === id);
+    if (!e) return;
+    editingId = id;
+    document.getElementById('e-date').value = e.date;
+    document.getElementById('e-dept').value = e.dept;
+    document.getElementById('e-reporter').value = e.reporter;
+    document.getElementById('e-item').value = e.item;
+    document.getElementById('e-waste-weight').value = e.wasteWeight || '';
+    document.getElementById('e-waste-unit').value = e.wasteUnit || 'kg';
+    document.getElementById('e-yield-weight').value = e.yieldWeight || '';
+    document.getElementById('e-yield-unit').value = e.yieldUnit || 'kg';
+    document.getElementById('e-reason').value = e.reason || '';
+    document.getElementById('e-note').value = e.note || '';
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+    editingId = null;
+  }
+
+  function saveEdit() {
+    const idx = entries.findIndex(x => x.id === editingId);
+    if (idx < 0) return;
+    const date = document.getElementById('e-date').value;
+    const dept = document.getElementById('e-dept').value;
+    const reporter = document.getElementById('e-reporter').value.trim();
+    const item = document.getElementById('e-item').value.trim();
+    const reason = document.getElementById('e-reason').value;
+    const note = document.getElementById('e-note').value.trim();
+    const wasteW = document.getElementById('e-waste-weight').value;
+    const wasteU = document.getElementById('e-waste-unit').value;
+    const yieldW = document.getElementById('e-yield-weight').value;
+    const yieldU = document.getElementById('e-yield-unit').value;
+    if (!date || !dept || !reporter || !item) { showToast('⚠️ กรุณากรอกข้อมูลให้ครบ', true); return; }
+    entries[idx] = { ...entries[idx], date, dept, reporter, item, reason, note,
+      wasteWeight: wasteW ? parseFloat(wasteW) : null, wasteUnit: wasteU,
+      yieldWeight: yieldW ? parseFloat(yieldW) : null, yieldUnit: yieldU };
+    save(); closeEditModal(); renderLog();
+    showToast('✅ แก้ไขเรียบร้อย');
+  }
+
+  // ── Export CSV ──
+  function toKg(w, u) {
+    if (!w) return 0;
+    if (u === 'kg' || u === 'L') return w;
+    if (u === 'g' || u === 'ml') return w / 1000;
+    return w * 0.3;
+  }
+
+  function exportCSV() {
+    if (!entries.length) { showToast('⚠️ ไม่มีข้อมูล', true); return; }
+    const tf = document.getElementById('filterType').value;
+    const df = document.getElementById('filterDept').value;
+    const dtf = document.getElementById('filterDate').value;
+    let data = entries.filter(e => {
+      if (tf && e.type !== tf) return false;
+      if (df && e.dept !== df) return false;
+      if (dtf && e.date !== dtf) return false;
+      return true;
+    });
+
+    const hdr = ['branch_code','branch_name','วันที่','แผนก','ผู้รายงาน','วัตถุดิบ','ประเภท','waste_weight','waste_unit','yield_weight','yield_unit','สาเหตุ','หมายเหตุ'];
+    const rows = data.map(e => [
+      e.branchCode||'', e.branchName||'',
+      e.date, e.dept, e.reporter, e.item,
+      e.type,
+      e.wasteWeight != null ? e.wasteWeight : '',
+      e.wasteWeight != null ? e.wasteUnit : '',
+      e.yieldWeight != null ? e.yieldWeight : '',
+      e.yieldWeight != null ? e.yieldUnit : '',
+      e.reason || '', e.note || ''
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+    const csv = '\uFEFF' + [hdr.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `praline-wy-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast(`⬇ ส่งออก ${data.length} รายการ`);
+  }
+
+  // ── Summary ──
+  function renderSummary() {
+    const today = new Date().toISOString().slice(0,10);
+    const tod = entries.filter(e => e.date === today);
+
+    const wasteToday = tod.filter(e => e.type === 'waste' || e.type === 'all');
+    const yieldToday = tod.filter(e => e.type === 'yield' || e.type === 'all');
+
+    document.getElementById('s-waste-count').textContent = wasteToday.length;
+    document.getElementById('s-yield-count').textContent = yieldToday.length;
+
+    const wKg = wasteToday.reduce((s,e) => s + toKg(e.wasteWeight, e.wasteUnit), 0);
+    const yKg = yieldToday.reduce((s,e) => s + toKg(e.yieldWeight, e.yieldUnit), 0);
+    document.getElementById('s-waste-kg').textContent = wKg.toFixed(2);
+    document.getElementById('s-yield-kg').textContent = yKg.toFixed(2);
+
+    const deptMap = {};
+    entries.forEach(e => {
+      const key = e.dept.split(' ')[0];
+      if (!deptMap[key]) deptMap[key] = 0;
+      deptMap[key] += toKg(e.wasteWeight, e.wasteUnit) + toKg(e.yieldWeight, e.yieldUnit);
+    });
+
+    const depts = Object.entries(deptMap).sort((a,b) => b[1]-a[1]);
+    const maxVal = depts.length ? depts[0][1] : 1;
+
+    document.getElementById('deptBreakdown').innerHTML = depts.length
+      ? depts.map(([dept, val]) => `
+        <div class="dept-row">
+          <span class="dept-label">${dept}</span>
+          <div class="dept-bar-wrap"><div class="dept-bar" style="width:${(val/maxVal*100).toFixed(0)}%"></div></div>
+          <span class="dept-val">${val.toFixed(2)} kg</span>
+        </div>`).join('')
+      : '<div style="color:var(--text-3);text-align:center;padding:16px;font-size:13px">ยังไม่มีข้อมูล</div>';
+  }
+
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+  }
+
+  document.getElementById('editModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(); });
+  document.getElementById('confirmDlg').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+</script>
+</body>
+</html>
