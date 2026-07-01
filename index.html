@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Waste & Yield — Praline</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
     --bg: #f7f5f0;
@@ -264,7 +265,7 @@
   .form-group.full { grid-column: 1 / -1; }
 
   label {
-    font-size: 11px; font-weight: 700; color: var(--text-3);
+    font-size: 13px; font-weight: 700; color: var(--text-2);
     text-transform: uppercase; letter-spacing: 0.8px;
   }
 
@@ -274,37 +275,94 @@
     border-radius: var(--radius-sm);
     padding: 11px 13px;
     color: var(--text);
-    font-size: 16px;
+    font-size: 15px;
     font-family: 'Sarabun', sans-serif;
     transition: all 0.15s;
     width: 100%;
     appearance: none; -webkit-appearance: none;
   }
 
-  input:focus, select:focus, textarea:focus {
+  input::placeholder, textarea::placeholder {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  input:focus, textarea:focus {
     outline: none;
     border-color: var(--accent-mid);
     box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
     background: #fff;
   }
 
+  select:focus {
+    outline: none;
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
+    background-color: #fff;
+  }
+
   textarea { resize: vertical; min-height: 70px; }
 
   select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7c68' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5040' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 13px center;
-    padding-right: 34px;
+    background-size: 12px 8px;
+    padding-right: 36px;
   }
 
   select option { background: #fff; }
 
   .weight-wrapper { display: flex; gap: 7px; }
   .weight-wrapper input { flex: 1; }
-  .unit-select { width: 82px; flex-shrink: 0; }
+  .unit-select { width: 82px; flex-shrink: 0; font-size: 15px; }
 
-  /* ── INGREDIENT INPUT WITH DATALIST ── */
-  .ingredient-wrap { position: relative; }
+  /* ── CHECKBOX ── */
+  /* ── CHECKBOX (shared style) ── */
+  input[type="checkbox"] {
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .entry-cb,
+  .select-all-cb {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 22px !important;
+    height: 22px !important;
+    border: 2px solid var(--border-hover) !important;
+    border-radius: 6px !important;
+    background: var(--surface) !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    transition: background 0.15s, border-color 0.15s !important;
+    display: inline-block !important;
+  }
+
+  .entry-cb:checked,
+  .select-all-cb:checked {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+  }
+
+  .entry-cb:checked::after,
+  .select-all-cb:checked::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 10px;
+    border: 2.5px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+    position: absolute;
+    top: 3px;
+    left: 7px;
+  }
+
 
   /* ── PHOTO UPLOAD ── */
   .photo-upload {
@@ -356,6 +414,18 @@
   .btn-submit:active { transform: none; }
 
   /* ── LOG ── */
+  .log-subtab {
+    flex: 1; padding: 12px 8px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-3); background: none; border: none;
+    font-family: 'Sarabun', sans-serif; cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  .log-subtab.active { color: var(--text); background: var(--surface); font-weight: 700; }
+  .log-subtab:first-child { border-right: 1px solid var(--border); }
+
   .log-toolbar {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
@@ -639,47 +709,6 @@
   <button class="tab" onclick="switchTab('summary',this)">📊 สรุป</button>
 </div>
 
-<!-- DATALISTS -->
-<datalist id="dl-kitchen">
-  <option value="ฟินเลย์ ไอซ์เบิร์ก ตัดราก">
-  <option value="เรดคอรัล (Red Coral)">
-  <option value="โรเมนคอส (Romaine Cos)">
-  <option value="เบบี้คอส (Baby Cos)">
-  <option value="ร็อกเก็ตป่าตัดราก (Wild Rocket)">
-  <option value="เลมอน (Lemon)">
-  <option value="ส้มซันคิส (Sunkist)">
-  <option value="มะเขือเทศราชินีไทย">
-  <option value="มะเขือเทศท้อ">
-  <option value="พริกจาลาปิโน (Jalapeno)">
-  <option value="ผักชีลาว (Dill)">
-  <option value="แซลมอนสด (Salmon)">
-  <option value="แซลมอนรมควัน (Smoked Salmon)">
-  <option value="กุ้งขาว (Size 25 ตัว/กก.)">
-  <option value="เนื้อสตริปลอยน์ Angus">
-  <option value="เบคอน Roy">
-  <option value="เบคอน TGM ปกติ">
-  <option value="เบคอน TGM หนา">
-  <option value="ไส้กรอก Chorizo">
-  <option value="ไก่ทอดคาราอะเกะ (Frozen)">
-  <option value="นมสด เมจิ (2L)">
-  <option value="น้ำมันถั่วเหลือง กุ๊ก">
-  <option value="น้ำสลัดงาญี่ปุ่น คิวพี (1L)">
-  <option value="ซอสมะเขือเทศ โรซ่า">
-  <option value="นมข้นจืด คาร์เนชั่น (1L)">
-  <option value="ครีมเทียมข้นหวาน คาร์เนชั่น (2kg)">
-  <option value="น้ำผึ้ง ดอยคำ">
-  <option value="กาแฟ Medium">
-  <option value="Alfredo Sauce (CK)">
-  <option value="Truffle Soup (CK)">
-  <option value="Bolognese Sauce (CK)">
-  <option value="Ebiko Pink Sauce (CK)">
-  <option value="Pesto Sauce (CK)">
-  <option value="Tomato Pizza Base (CK)">
-  <option value="วิปปิ้งครีม Milac (1L)">
-  <option value="ชีส Padano">
-  <option value="ชีส Gruyere">
-  <option value="เหล้า Gin">
-</datalist>
 
 <main>
 
@@ -688,7 +717,7 @@
 
     <!-- Type Selector -->
     <div class="type-selector">
-      <button class="type-btn active-all" id="btn-all" onclick="setType('all')">🟡 Waste &amp; Yield</button>
+      <button class="type-btn active-all" id="btn-all" onclick="setType('all')">🟢 Yield</button>
       <button class="type-btn" id="btn-waste" onclick="setType('waste')">🔴 Waste</button>
     </div>
 
@@ -705,22 +734,20 @@
           <select id="f-dept" onchange="onDeptChange()">
             <option value="">— เลือกแผนก —</option>
             <option>ครัวร้อน (Hot Kitchen)</option>
-            <option>ครัวเย็น (Cold Kitchen)</option>
             <option>เบเกอรี่ (Bakery)</option>
             <option>เครื่องดื่ม (Beverage)</option>
-            <option>คลังสินค้า (Storeroom)</option>
             <option>แผนกหน้าร้าน (Front of House)</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>ชื่อผู้รายงาน</label>
-          <input type="text" id="f-reporter" placeholder="ชื่อ-นามสกุล">
+          <input type="text" id="f-reporter" placeholder="พิมพ์ชื่อ">
         </div>
 
         <div class="form-group full">
           <label id="ingredient-label">ชื่อวัตถุดิบ</label>
-          <input type="text" id="f-item" placeholder="พิมพ์หรือเลือกวัตถุดิบ" autocomplete="off">
+          <input type="text" id="f-item" placeholder="พิมพ์ชื่อวัตถุดิบ" autocomplete="off">
           <div style="font-size:11px; color:var(--text-3); margin-top:3px;" id="ingredient-hint"></div>
         </div>
 
@@ -730,7 +757,7 @@
           <div class="weight-wrapper">
             <input type="number" id="f-waste-weight" placeholder="0.00" step="0.01" min="0">
             <select id="f-waste-unit" class="unit-select" onchange="mirrorUnit()">
-              <option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option>
+              <option>g</option><option>kg</option><option>ml</option><option>L</option><option>pcs</option>
             </select>
           </div>
         </div>
@@ -741,7 +768,7 @@
           <div class="weight-wrapper">
             <input type="number" id="f-yield-weight" placeholder="0.00" step="0.01" min="0">
             <select id="f-yield-unit" class="unit-select">
-              <option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option>
+              <option>g</option><option>kg</option><option>ml</option><option>L</option><option>pcs</option>
             </select>
           </div>
         </div>
@@ -782,59 +809,116 @@
 
   <!-- ═══ LOG ═══ -->
   <div class="panel" id="panel-log">
-    <div class="log-toolbar">
-      <div class="log-title">รายการ <span class="count-badge" id="logCount">0</span></div>
-      <button class="btn-export" onclick="exportCSV()">⬇ ส่งออก CSV</button>
+
+    <!-- Sub-tabs -->
+    <div style="display:flex; gap:0; margin-bottom:16px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;">
+      <button class="log-subtab active" id="subtab-yield" onclick="switchLogTab('yield')">
+        🟢 Yield <span class="count-badge" id="logCountYield" style="background:var(--green-light);color:var(--green);border-color:#90c8a8;">0</span>
+      </button>
+      <button class="log-subtab" id="subtab-waste" onclick="switchLogTab('waste')">
+        🔴 Waste <span class="count-badge" id="logCountWaste" style="background:var(--red-light);color:var(--red);border-color:#e0a0a0;">0</span>
+      </button>
     </div>
+
+    <!-- Shared filters -->
     <div class="filters">
-      <select class="filter-select" id="filterType" onchange="renderLog()">
-        <option value="">ทุกประเภท</option>
-        <option value="waste">Waste</option>
-        <option value="all">Waste &amp; Yield</option>
-      </select>
       <select class="filter-select" id="filterDept" onchange="renderLog()">
         <option value="">ทุกแผนก</option>
         <option>ครัวร้อน (Hot Kitchen)</option>
-        <option>ครัวเย็น (Cold Kitchen)</option>
         <option>เบเกอรี่ (Bakery)</option>
         <option>เครื่องดื่ม (Beverage)</option>
-        <option>คลังสินค้า (Storeroom)</option>
         <option>แผนกหน้าร้าน (Front of House)</option>
       </select>
       <input type="date" class="filter-select" id="filterDate" onchange="renderLog()">
       <button class="btn-sm" onclick="clearFilters()">✕ ล้าง</button>
     </div>
-    <div id="logList"></div>
+
+    <!-- Yield tab -->
+    <div id="log-yield-pane">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div id="selectBarYield" style="display:none; align-items:center; gap:10px;">
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--green);text-transform:none;letter-spacing:0;cursor:pointer;">
+            <input type="checkbox" class="select-all-cb" id="checkAllYield" onchange="toggleAll('yield',this)">
+            เลือกทั้งหมด
+          </label>
+          <span id="selectedCountYield" style="font-size:12px;color:var(--text-3);"></span>
+        </div>
+        <button class="btn-export" style="margin-left:auto;" onclick="promptExport('yield')">⬇ ส่งออก Yield</button>
+      </div>
+      <div id="logListYield"></div>
+    </div>
+
+    <!-- Waste tab -->
+    <div id="log-waste-pane" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div id="selectBarWaste" style="display:none; align-items:center; gap:10px;">
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--red);text-transform:none;letter-spacing:0;cursor:pointer;">
+            <input type="checkbox" class="select-all-cb" id="checkAllWaste" onchange="toggleAll('waste',this)">
+            เลือกทั้งหมด
+          </label>
+          <span id="selectedCountWaste" style="font-size:12px;color:var(--text-3);"></span>
+        </div>
+        <button class="btn-export" style="background:var(--red-light);border-color:#e0a0a0;color:var(--red);margin-left:auto;" onclick="promptExport('waste')">⬇ ส่งออก Waste</button>
+      </div>
+      <div id="logListWaste"></div>
+    </div>
+
   </div>
 
   <!-- ═══ SUMMARY ═══ -->
   <div class="panel" id="panel-summary">
-    <div class="summary-grid">
+
+    <!-- Today -->
+    <div class="breakdown-title" style="margin-bottom:12px;">📅 วันนี้</div>
+    <div class="summary-grid" style="margin-bottom:20px;">
       <div class="stat-card">
-        <div class="stat-label">Waste วันนี้</div>
+        <div class="stat-label">Waste</div>
         <div class="stat-value stat-red" id="s-waste-count">0</div>
         <div class="stat-unit">รายการ</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Yield วันนี้</div>
+        <div class="stat-label">Yield</div>
         <div class="stat-value stat-green" id="s-yield-count">0</div>
         <div class="stat-unit">รายการ</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">น้ำหนัก Waste (kg)</div>
+        <div class="stat-label">น้ำหนัก Waste</div>
         <div class="stat-value stat-red" id="s-waste-kg">0.00</div>
-        <div class="stat-unit">กิโลกรัม</div>
+        <div class="stat-unit">kg</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">น้ำหนัก Yield (kg)</div>
-        <div class="stat-value stat-green" id="s-yield-kg">0.00</div>
-        <div class="stat-unit">กิโลกรัม</div>
+        <div class="stat-label">Yield %</div>
+        <div class="stat-value stat-green" id="s-yield-pct">—</div>
+        <div class="stat-unit">หลังแต่ง / ซื้อมา</div>
       </div>
     </div>
+
+    <!-- 7-day overview -->
+    <div class="breakdown-title" style="margin-bottom:12px;">📆 7 วันล่าสุด</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
+      <div class="stat-card" style="text-align:center;">
+        <div class="stat-label">รายการรวม</div>
+        <div class="stat-value" id="s-7-count" style="font-size:22px;">0</div>
+        <div class="stat-unit">รายการ</div>
+      </div>
+      <div class="stat-card" style="text-align:center;">
+        <div class="stat-label">Waste รวม</div>
+        <div class="stat-value stat-red" id="s-7-waste" style="font-size:22px;">0.00</div>
+        <div class="stat-unit">kg</div>
+      </div>
+      <div class="stat-card" style="text-align:center;">
+        <div class="stat-label">Yield %</div>
+        <div class="stat-value stat-green" id="s-7-yield-pct" style="font-size:22px;">—</div>
+        <div class="stat-unit">เฉลี่ย</div>
+      </div>
+    </div>
+
+    <!-- Dept breakdown -->
     <div class="dept-breakdown">
-      <div class="breakdown-title">แยกตามแผนก (ทั้งหมด)</div>
+      <div class="breakdown-title">Waste แยกตามแผนก (7 วัน)</div>
       <div id="deptBreakdown"></div>
     </div>
+
   </div>
 
 </main>
@@ -852,7 +936,7 @@
 <div class="modal-backdrop" id="editModal">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <div class="modal-title">✏️ แก้ไขรายการ</div>
+    <div class="modal-title" id="editModalTitle">✏️ แก้ไขรายการ</div>
     <div class="form-grid">
       <div class="form-group full"><label>วันที่</label><input type="date" id="e-date"></div>
       <div class="form-group">
@@ -860,30 +944,28 @@
         <select id="e-dept">
           <option value="">— เลือก —</option>
           <option>ครัวร้อน (Hot Kitchen)</option>
-          <option>ครัวเย็น (Cold Kitchen)</option>
           <option>เบเกอรี่ (Bakery)</option>
           <option>เครื่องดื่ม (Beverage)</option>
-          <option>คลังสินค้า (Storeroom)</option>
           <option>แผนกหน้าร้าน (Front of House)</option>
         </select>
       </div>
       <div class="form-group"><label>ชื่อผู้รายงาน</label><input type="text" id="e-reporter"></div>
       <div class="form-group full"><label>ชื่อวัตถุดิบ</label><input type="text" id="e-item"></div>
-      <div class="form-group">
-        <label>น้ำหนัก Waste</label>
+      <div class="form-group" id="e-waste-group">
+        <label id="e-waste-label">น้ำหนัก Waste</label>
         <div class="weight-wrapper">
           <input type="number" id="e-waste-weight" step="0.01" min="0">
-          <select id="e-waste-unit" class="unit-select"><option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option></select>
+          <select id="e-waste-unit" class="unit-select"><option>g</option><option>kg</option><option>ml</option><option>L</option><option>pcs</option></select>
         </div>
       </div>
-      <div class="form-group">
-        <label>น้ำหนัก Yield</label>
+      <div class="form-group" id="e-yield-group">
+        <label>น้ำหนักหลังแต่ง</label>
         <div class="weight-wrapper">
           <input type="number" id="e-yield-weight" step="0.01" min="0">
-          <select id="e-yield-unit" class="unit-select"><option>kg</option><option>g</option><option>L</option><option>ml</option><option>pc</option></select>
+          <select id="e-yield-unit" class="unit-select"><option>g</option><option>kg</option><option>ml</option><option>L</option><option>pcs</option></select>
         </div>
       </div>
-      <div class="form-group full">
+      <div class="form-group full" id="e-reason-group">
         <label>สาเหตุ</label>
         <select id="e-reason">
           <option value="">— เลือก —</option>
@@ -905,6 +987,32 @@
   </div>
 </div>
 
+<!-- Export Confirm Popup -->
+<div class="confirm-backdrop" id="exportDlg">
+  <div class="confirm-box">
+    <div class="confirm-icon">⬇️</div>
+    <div class="confirm-title">ส่งออกข้อมูล</div>
+    <div class="confirm-desc" id="exportDesc"></div>
+    <div class="confirm-row">
+      <button class="btn-confirm-cancel" onclick="closeExportDlg()">ยกเลิก</button>
+      <button class="btn-save" style="flex:1" onclick="doExport()">ส่งออก ZIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete After Export Popup -->
+<div class="confirm-backdrop" id="deleteAfterDlg">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">ลบข้อมูลออกจากระบบ?</div>
+    <div class="confirm-desc" id="deleteAfterDesc"></div>
+    <div class="confirm-row">
+      <button class="btn-confirm-cancel" onclick="closeDeleteAfterDlg()">เก็บไว้ก่อน</button>
+      <button class="btn-confirm-del" onclick="doDeleteAfterExport()">ลบเลย</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confirm Delete -->
 <div class="confirm-backdrop" id="confirmDlg">
   <div class="confirm-box">
@@ -918,28 +1026,31 @@
   </div>
 </div>
 
-<script>
-  const KITCHEN_DEPTS = ['ครัวร้อน (Hot Kitchen)', 'ครัวเย็น (Cold Kitchen)', 'เบเกอรี่ (Bakery)'];
+<!-- Saved Confirmation Popup -->
+<div class="confirm-backdrop" id="savedDlg">
+  <div class="confirm-box">
+    <div class="confirm-icon">✅</div>
+    <div class="confirm-title">บันทึกเรียบร้อย</div>
+    <div class="confirm-desc" id="savedDesc"></div>
+    <div class="confirm-row">
+      <button class="btn-save" style="flex:1" onclick="closeSavedPopup()">ตกลง</button>
+    </div>
+  </div>
+</div>
 
+<script>
   let entries = [];
-  try { entries = JSON.parse(localStorage.getItem('pralineWY') || '[]'); } catch(e) { entries = []; }
+  // entries จะโหลดหลังเลือกสาขา (แยก key ตาม branchCode)
   let photoDataURLs = [];
   let editingId = null;
   let deletingId = null;
   let currentType = 'all';
   let currentBranch = { code: '', name: '' };
 
-  // ── Init ──
+  function branchKey() { return 'pralineWY_' + currentBranch.code; }
+
+  // ── Init ── (splash แสดงทุกครั้งที่เปิดหน้า ไม่ cache สาขา)
   (function init() {
-    const saved = localStorage.getItem('pralineBranch');
-    if (saved) {
-      try {
-        const b = JSON.parse(saved);
-        currentBranch = b;
-        document.getElementById('splash').classList.add('hidden');
-        document.getElementById('headerBranch').textContent = b.name;
-      } catch(e) {}
-    }
     const now = new Date();
     document.getElementById('f-date').value = now.toISOString().slice(0,10);
     updateTypeUI();
@@ -948,9 +1059,11 @@
 
   function selectBranch(code, name) {
     currentBranch = { code, name };
-    localStorage.setItem('pralineBranch', JSON.stringify(currentBranch));
+    // โหลด entries ของสาขานี้จาก localStorage
+    try { entries = JSON.parse(localStorage.getItem('pralineWY_' + code) || '[]'); } catch(e) { entries = []; }
     document.getElementById('headerBranch').textContent = name;
     document.getElementById('splash').classList.add('hidden');
+    document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
   }
 
   function changeBranch() {
@@ -958,7 +1071,7 @@
   }
 
   function save() {
-    localStorage.setItem('pralineWY', JSON.stringify(entries));
+    localStorage.setItem(branchKey(), JSON.stringify(entries));
   }
 
   function switchTab(tab, el) {
@@ -1012,19 +1125,9 @@
     }
   }
 
-  // ── Dept change — show/hide datalist ──
+  // ── Dept change ──
   function onDeptChange() {
-    const dept = document.getElementById('f-dept').value;
-    const isKitchen = KITCHEN_DEPTS.includes(dept);
-    const input = document.getElementById('f-item');
-    const hint = document.getElementById('ingredient-hint');
-    if (isKitchen) {
-      input.setAttribute('list', 'dl-kitchen');
-      hint.textContent = '💡 เลือกจากรายการวัตถุดิบมาตรฐาน หรือพิมพ์เองได้';
-    } else {
-      input.removeAttribute('list');
-      hint.textContent = '✏️ พิมพ์ชื่อวัตถุดิบ';
-    }
+    // ไม่มี datalist แล้ว — พนักงานพิมพ์ชื่อวัตถุดิบเองได้เลย
   }
 
   // ── Photo ──
@@ -1088,15 +1191,29 @@
     entries.unshift(entry);
     save();
 
-    ['f-item','f-waste-weight','f-yield-weight','f-note'].forEach(id => document.getElementById(id).value = '');
+    ['f-item','f-waste-weight','f-yield-weight','f-note','f-reporter','f-dept'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-reason').value = '';
     document.getElementById('f-photos').value = '';
     document.getElementById('photoPreview').innerHTML = '';
     document.getElementById('photoPreview').style.display = 'none';
     document.getElementById('ingredient-hint').textContent = '';
+    document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
     photoDataURLs = [];
 
-    showToast('✅ บันทึกเรียบร้อย');
+    showSavedPopup(entry);
+  }
+
+  function showSavedPopup(entry) {
+    const weightLine = [];
+    if (entry.wasteWeight != null) weightLine.push(`${entry.type === 'all' ? 'ซื้อมา' : 'Waste'}: ${entry.wasteWeight} ${entry.wasteUnit}`);
+    if (entry.yieldWeight != null) weightLine.push(`หลังแต่ง: ${entry.yieldWeight} ${entry.yieldUnit}`);
+    document.getElementById('savedDesc').innerHTML =
+      `<strong>${esc(entry.item)}</strong><br>${esc(entry.dept)}<br>${weightLine.join(' • ')}<br>📅 ${formatDate(entry.date)}`;
+    document.getElementById('savedDlg').classList.add('open');
+  }
+
+  function closeSavedPopup() {
+    document.getElementById('savedDlg').classList.remove('open');
   }
 
   function showToast(msg, isErr = false) {
@@ -1109,23 +1226,57 @@
   // ── Render Log ──
   function typeLabel(type) {
     if (type === 'waste') return '<span class="tag tag-waste">Waste</span>';
-    return '<span class="tag tag-all">Waste &amp; Yield</span>';
+    return '<span class="tag tag-all">Yield</span>';
+  }
+
+  // ── Log Tab State ──
+  let currentLogTab = 'yield';
+
+  function switchLogTab(tab) {
+    currentLogTab = tab;
+    document.getElementById('subtab-waste').className = 'log-subtab' + (tab === 'waste' ? ' active' : '');
+    document.getElementById('subtab-yield').className = 'log-subtab' + (tab === 'yield' ? ' active' : '');
+    document.getElementById('log-waste-pane').style.display = tab === 'waste' ? '' : 'none';
+    document.getElementById('log-yield-pane').style.display = tab === 'yield' ? '' : 'none';
+    renderLog();
   }
 
   function renderLog() {
-    const list = document.getElementById('logList');
-    const tf = document.getElementById('filterType').value;
     const df = document.getElementById('filterDept').value;
     const dtf = document.getElementById('filterDate').value;
 
-    let filtered = entries.filter(e => {
-      if (tf && e.type !== tf) return false;
+    // Waste: type === 'waste'
+    const wasteEntries = entries.filter(e => {
+      if (e.type !== 'waste') return false;
       if (df && e.dept !== df) return false;
       if (dtf && e.date !== dtf) return false;
       return true;
     });
 
-    document.getElementById('logCount').textContent = filtered.length;
+    // Yield: type === 'all'
+    const yieldEntries = entries.filter(e => {
+      if (e.type !== 'all') return false;
+      if (df && e.dept !== df) return false;
+      if (dtf && e.date !== dtf) return false;
+      return true;
+    });
+
+    document.getElementById('logCountWaste').textContent = wasteEntries.length;
+    document.getElementById('logCountYield').textContent = yieldEntries.length;
+
+    renderLogPane('waste', wasteEntries);
+    renderLogPane('yield', yieldEntries);
+  }
+
+  function renderLogPane(tab, filtered) {
+    const listId = tab === 'waste' ? 'logListWaste' : 'logListYield';
+    const selectBarId = tab === 'waste' ? 'selectBarWaste' : 'selectBarYield';
+    const checkAllId = tab === 'waste' ? 'checkAllWaste' : 'checkAllYield';
+    const list = document.getElementById(listId);
+
+    document.getElementById(selectBarId).style.display = filtered.length ? 'flex' : 'none';
+    document.getElementById(checkAllId).checked = false;
+    updateSelectedCount(tab);
 
     if (!filtered.length) {
       list.innerHTML = `<div class="log-empty"><div class="ei">📭</div><p>ยังไม่มีรายการ</p></div>`;
@@ -1134,23 +1285,25 @@
 
     list.innerHTML = filtered.map(e => {
       const weightLine = [];
-      if (e.wasteWeight != null) weightLine.push(`<span style="color:var(--red)">${e.type === 'all' ? 'ซื้อมา' : 'Waste'}: ${e.wasteWeight} ${e.wasteUnit}</span>`);
+      if (e.wasteWeight != null) weightLine.push(`<span style="color:var(--red)">${tab === 'yield' ? 'ซื้อมา' : 'Waste'}: ${e.wasteWeight} ${e.wasteUnit}</span>`);
       if (e.yieldWeight != null) weightLine.push(`<span style="color:var(--green)">หลังแต่ง: ${e.yieldWeight} ${e.yieldUnit}</span>`);
 
       return `<div class="log-card">
         <div class="log-top">
-          <div class="log-left">
-            <div class="log-name">${esc(e.item)}</div>
-            <div class="log-meta">
-              ${typeLabel(e.type)}
-              <span class="tag tag-dept">${e.dept.split(' ')[0]}</span>
-              <span class="tag tag-neutral">📅 ${e.date}</span>
-              <span class="tag tag-neutral">👤 ${esc(e.reporter)}</span>
-              ${e.reason ? `<span class="tag tag-reason">⚠️ ${esc(e.reason)}</span>` : ''}
+          <div style="display:flex;align-items:flex-start;gap:10px;width:100%;">
+            <input type="checkbox" class="entry-cb entry-cb-${tab}" data-id="${e.id}" onchange="updateSelectedCount('${tab}')" style="flex-shrink:0;margin-top:3px;">
+            <div class="log-left">
+              <div class="log-name">${esc(e.item)}</div>
+              <div class="log-meta">
+                <span class="tag tag-dept">${e.dept.split(' ')[0]}</span>
+                <span class="tag tag-neutral">📅 ${formatDate(e.date)}</span>
+                <span class="tag tag-neutral">👤 ${esc(e.reporter)}</span>
+                ${e.reason ? `<span class="tag tag-reason">⚠️ ${esc(e.reason)}</span>` : ''}
+              </div>
             </div>
-          </div>
-          <div class="log-right" style="font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:right; line-height:1.8;">
-            ${weightLine.join('<br>')}
+            <div class="log-right" style="font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:right; line-height:1.8; flex-shrink:0;">
+              ${weightLine.join('<br>')}
+            </div>
           </div>
         </div>
         ${e.note ? `<div class="log-note">💬 ${esc(e.note)}</div>` : ''}
@@ -1163,12 +1316,36 @@
     }).join('');
   }
 
+  function toggleAll(tab, cb) {
+    document.querySelectorAll(`.entry-cb-${tab}`).forEach(c => c.checked = cb.checked);
+    updateSelectedCount(tab);
+  }
+
+  function updateSelectedCount(tab) {
+    const all = document.querySelectorAll(`.entry-cb-${tab}`);
+    const checked = document.querySelectorAll(`.entry-cb-${tab}:checked`);
+    const countId = tab === 'waste' ? 'selectedCountWaste' : 'selectedCountYield';
+    const checkAllId = tab === 'waste' ? 'checkAllWaste' : 'checkAllYield';
+    document.getElementById(countId).textContent = checked.length ? `เลือกแล้ว ${checked.length} / ${all.length} รายการ` : '';
+    document.getElementById(checkAllId).checked = all.length > 0 && checked.length === all.length;
+  }
+
+  function getSelectedIds(tab) {
+    return Array.from(document.querySelectorAll(`.entry-cb-${tab}:checked`)).map(c => parseInt(c.dataset.id));
+  }
+
+  function formatDate(d) {
+    if (!d) return '';
+    const [y,m,day] = d.split('-');
+    return `${day}/${m}/${y}`;
+  }
+
   function esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
   function clearFilters() {
-    ['filterType','filterDept','filterDate'].forEach(id => document.getElementById(id).value = '');
+    ['filterDept','filterDate'].forEach(id => document.getElementById(id).value = '');
     renderLog();
   }
 
@@ -1200,11 +1377,21 @@
     document.getElementById('e-reporter').value = e.reporter;
     document.getElementById('e-item').value = e.item;
     document.getElementById('e-waste-weight').value = e.wasteWeight || '';
-    document.getElementById('e-waste-unit').value = e.wasteUnit || 'kg';
+    document.getElementById('e-waste-unit').value = e.wasteUnit || 'g';
     document.getElementById('e-yield-weight').value = e.yieldWeight || '';
-    document.getElementById('e-yield-unit').value = e.yieldUnit || 'kg';
+    document.getElementById('e-yield-unit').value = e.yieldUnit || 'g';
     document.getElementById('e-reason').value = e.reason || '';
     document.getElementById('e-note').value = e.note || '';
+
+    // Show/hide fields based on type
+    const isWaste = e.type === 'waste';
+    const isYield = e.type === 'all';
+    document.getElementById('e-waste-group').style.display = '';
+    document.getElementById('e-yield-group').style.display = isYield ? '' : 'none';
+    document.getElementById('e-reason-group').style.display = isWaste ? '' : 'none';
+    document.getElementById('e-waste-label').textContent = isYield ? 'น้ำหนักที่ซื้อมา' : 'น้ำหนัก Waste';
+    document.getElementById('editModalTitle').textContent = isYield ? '✏️ แก้ไขรายการ Yield' : '✏️ แก้ไขรายการ Waste';
+
     document.getElementById('editModal').classList.add('open');
   }
 
@@ -1234,7 +1421,7 @@
     showToast('✅ แก้ไขเรียบร้อย');
   }
 
-  // ── Export CSV ──
+  // ── Helper ──
   function toKg(w, u) {
     if (!w) return 0;
     if (u === 'kg' || u === 'L') return w;
@@ -1242,59 +1429,175 @@
     return w * 0.3;
   }
 
-  function exportCSV() {
-    if (!entries.length) { showToast('⚠️ ไม่มีข้อมูล', true); return; }
-    const tf = document.getElementById('filterType').value;
-    const df = document.getElementById('filterDept').value;
-    const dtf = document.getElementById('filterDate').value;
-    let data = entries.filter(e => {
-      if (tf && e.type !== tf) return false;
-      if (df && e.dept !== df) return false;
-      if (dtf && e.date !== dtf) return false;
-      return true;
+  // ── Export Confirm ──
+  let exportIds = [];
+  let exportTab = 'waste';
+
+  function promptExport(tab) {
+    const selected = getSelectedIds(tab);
+    if (selected.length === 0) {
+      showToast('⚠️ กรุณาเลือกรายการที่ต้องการส่งออกก่อน', true);
+      return;
+    }
+    exportIds = selected;
+    exportTab = tab;
+    const label = tab === 'waste' ? 'Waste' : 'Yield';
+    document.getElementById('exportDesc').textContent = `คุณเลือก ${selected.length} รายการ (${label}) ต้องการส่งออกเป็น ZIP ใช่ไหม?`;
+    document.getElementById('exportDlg').classList.add('open');
+  }
+
+  function closeExportDlg() {
+    document.getElementById('exportDlg').classList.remove('open');
+  }
+
+  async function doExport() {
+    closeExportDlg();
+    await exportZIP(exportIds);
+    // Ask if want to delete
+    document.getElementById('deleteAfterDesc').textContent = `ส่งออก ${exportIds.length} รายการเรียบร้อยแล้ว\nต้องการลบข้อมูลเหล่านี้ออกจากระบบด้วยไหม?`;
+    document.getElementById('deleteAfterDlg').classList.add('open');
+  }
+
+  function closeDeleteAfterDlg() {
+    document.getElementById('deleteAfterDlg').classList.remove('open');
+    exportIds = [];
+  }
+
+  function doDeleteAfterExport() {
+    const count = exportIds.length;
+    entries = entries.filter(e => !exportIds.includes(e.id));
+    save();
+    closeDeleteAfterDlg();
+    renderLog();
+    showToast(`🗑️ ลบ ${count} รายการแล้ว`);
+  }
+  // ── Export ZIP (CSV + photos) ──
+  async function exportZIP(ids) {
+    const data = entries.filter(e => ids.includes(e.id));
+    if (!data.length) { showToast('⚠️ ไม่มีข้อมูล', true); return; }
+
+    showToast('⏳ กำลังสร้างไฟล์ ZIP...');
+
+    const zip = new JSZip();
+    const photoFolder = zip.folder('photos');
+
+    // Build CSV
+    const hdr = ['branch_code','branch_name','วันที่','แผนก','ผู้รายงาน','วัตถุดิบ','ประเภท',
+                  'waste_weight','waste_unit','yield_weight','yield_unit','สาเหตุ','หมายเหตุ','รูปถ่าย'];
+
+    const rows = data.map(e => {
+      // collect photo filenames for this entry
+      const photoNames = (e.photos || []).map((_, pi) => `photos/${e.id}_${pi + 1}.jpg`).join(' | ');
+      return [
+        e.branchCode||'', e.branchName||'',
+        e.date, e.dept, e.reporter, e.item,
+        e.type === 'all' ? 'Yield' : 'Waste',
+        e.wasteWeight != null ? e.wasteWeight : '',
+        e.wasteWeight != null ? e.wasteUnit : '',
+        e.yieldWeight != null ? e.yieldWeight : '',
+        e.yieldWeight != null ? e.yieldUnit : '',
+        e.reason || '', e.note || '',
+        photoNames
+      ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
     });
 
-    const hdr = ['branch_code','branch_name','วันที่','แผนก','ผู้รายงาน','วัตถุดิบ','ประเภท','waste_weight','waste_unit','yield_weight','yield_unit','สาเหตุ','หมายเหตุ'];
-    const rows = data.map(e => [
-      e.branchCode||'', e.branchName||'',
-      e.date, e.dept, e.reporter, e.item,
-      e.type,
-      e.wasteWeight != null ? e.wasteWeight : '',
-      e.wasteWeight != null ? e.wasteUnit : '',
-      e.yieldWeight != null ? e.yieldWeight : '',
-      e.yieldWeight != null ? e.yieldUnit : '',
-      e.reason || '', e.note || ''
-    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
     const csv = '\uFEFF' + [hdr.join(','), ...rows].join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    zip.file('data.csv', csv);
+
+    // Add photos
+    data.forEach(e => {
+      (e.photos || []).forEach((dataUrl, pi) => {
+        const base64 = dataUrl.split(',')[1];
+        if (base64) {
+          photoFolder.file(`${e.id}_${pi + 1}.jpg`, base64, { base64: true });
+        }
+      });
+    });
+
+    // README
+    const readme = `Praline Waste & Yield Export
+============================
+สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}
+รายการทั้งหมด: ${data.length} รายการ
+
+ไฟล์ในชุดนี้:
+- data.csv       : ข้อมูลทั้งหมด นำเข้า Excel / Google Sheets ได้เลย
+- photos/        : รูปถ่ายวัตถุดิบ ชื่อไฟล์ตรงกับคอลัมน์ "รูปถ่าย" ใน CSV
+
+วิธีเปิด CSV ด้วย Excel:
+1. เปิด Excel → Data → From Text/CSV
+2. เลือกไฟล์ data.csv
+3. Encoding: UTF-8
+`;
+    zip.file('README.txt', readme);
+
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `praline-wy-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click(); URL.revokeObjectURL(url);
-    showToast(`⬇ ส่งออก ${data.length} รายการ`);
+    a.href = url;
+    a.download = `praline-wy-${new Date().toISOString().slice(0,10)}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`✅ ส่งออก ${data.length} รายการสำเร็จ`);
   }
 
   // ── Summary ──
   function renderSummary() {
     const today = new Date().toISOString().slice(0,10);
-    const tod = entries.filter(e => e.date === today);
 
-    const wasteToday = tod.filter(e => e.type === 'waste' || e.type === 'all');
-    const yieldToday = tod.filter(e => e.type === 'yield' || e.type === 'all');
+    // ── Today ──
+    const tod = entries.filter(e => e.date === today);
+    const wasteToday = tod.filter(e => e.type === 'waste');
+    const yieldToday = tod.filter(e => e.type === 'all');
 
     document.getElementById('s-waste-count').textContent = wasteToday.length;
     document.getElementById('s-yield-count').textContent = yieldToday.length;
 
-    const wKg = wasteToday.reduce((s,e) => s + toKg(e.wasteWeight, e.wasteUnit), 0);
-    const yKg = yieldToday.reduce((s,e) => s + toKg(e.yieldWeight, e.yieldUnit), 0);
-    document.getElementById('s-waste-kg').textContent = wKg.toFixed(2);
-    document.getElementById('s-yield-kg').textContent = yKg.toFixed(2);
+    const wKgToday = wasteToday.reduce((s,e) => s + toKg(e.wasteWeight, e.wasteUnit), 0);
+    document.getElementById('s-waste-kg').textContent = wKgToday.toFixed(2);
 
+    // Yield % today
+    const buyKgToday = yieldToday.reduce((s,e) => s + toKg(e.wasteWeight, e.wasteUnit), 0);
+    const afterKgToday = yieldToday.reduce((s,e) => s + toKg(e.yieldWeight, e.yieldUnit), 0);
+    document.getElementById('s-yield-pct').textContent = buyKgToday > 0 ? (afterKgToday/buyKgToday*100).toFixed(1)+'%' : '—';
+
+    // ── 7-day data ──
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d.toISOString().slice(0,10));
+    }
+
+
+    const wastePerDay = days.map(d =>
+      entries.filter(e => e.date === d && e.type === 'waste')
+             .reduce((s,e) => s + toKg(e.wasteWeight, e.wasteUnit), 0)
+    );
+
+    const countPerDay = days.map(d =>
+      entries.filter(e => e.date === d).length
+    );
+
+    // 7-day totals
+    const total7count = countPerDay.reduce((a,b) => a+b, 0);
+    const total7waste = wastePerDay.reduce((a,b) => a+b, 0);
+    document.getElementById('s-7-count').textContent = total7count;
+    document.getElementById('s-7-waste').textContent = total7waste.toFixed(2);
+
+    // 7-day yield %
+    const buy7 = entries.filter(e => days.includes(e.date) && e.type === 'all')
+                        .reduce((s,e) => s + toKg(e.wasteWeight, e.wasteUnit), 0);
+    const after7 = entries.filter(e => days.includes(e.date) && e.type === 'all')
+                          .reduce((s,e) => s + toKg(e.yieldWeight, e.yieldUnit), 0);
+    document.getElementById('s-7-yield-pct').textContent = buy7 > 0 ? (after7/buy7*100).toFixed(1)+'%' : '—';
+
+    // ── Dept breakdown (7 days) ──
     const deptMap = {};
-    entries.forEach(e => {
+    entries.filter(e => days.includes(e.date) && e.type === 'waste').forEach(e => {
       const key = e.dept.split(' ')[0];
       if (!deptMap[key]) deptMap[key] = 0;
-      deptMap[key] += toKg(e.wasteWeight, e.wasteUnit) + toKg(e.yieldWeight, e.yieldUnit);
+      deptMap[key] += toKg(e.wasteWeight, e.wasteUnit);
     });
 
     const depts = Object.entries(deptMap).sort((a,b) => b[1]-a[1]);
@@ -1310,6 +1613,7 @@
       : '<div style="color:var(--text-3);text-align:center;padding:16px;font-size:13px">ยังไม่มีข้อมูล</div>';
   }
 
+
   function openLightbox(src) {
     document.getElementById('lightboxImg').src = src;
     document.getElementById('lightbox').classList.add('open');
@@ -1321,6 +1625,9 @@
 
   document.getElementById('editModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(); });
   document.getElementById('confirmDlg').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+  document.getElementById('savedDlg').addEventListener('click', e => { if (e.target === e.currentTarget) closeSavedPopup(); });
+  document.getElementById('exportDlg').addEventListener('click', e => { if (e.target === e.currentTarget) closeExportDlg(); });
+  document.getElementById('deleteAfterDlg').addEventListener('click', e => { if (e.target === e.currentTarget) closeDeleteAfterDlg(); });
 </script>
 </body>
 </html>
