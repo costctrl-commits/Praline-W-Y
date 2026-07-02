@@ -736,6 +736,10 @@
 
   .confirm-backdrop.open { display: flex; }
 
+  /* iOS fix — savedDlg ต้องอยู่บนสุดเสมอ */
+  #savedDlg { z-index: 1000 !important; }
+  #savedDlg.open { display: flex !important; }
+
   .confirm-box {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 18px; padding: 28px 24px;
@@ -1575,7 +1579,12 @@
     if (entry.yieldWeight != null) weightLine.push(`หลังแต่ง: ${entry.yieldWeight} ${entry.yieldUnit}`);
     document.getElementById('savedDesc').innerHTML =
       `<strong>${esc(entry.item)}</strong><br>${esc(entry.dept)}<br>${weightLine.join(' • ')}<br>📅 ${formatDate(entry.date)}`;
-    document.getElementById('savedDlg').classList.add('open');
+    // requestAnimationFrame เพื่อให้ iOS render ก่อนแสดง popup
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById('savedDlg').classList.add('open');
+      });
+    });
   }
 
   function closeSavedPopup() {
