@@ -1328,10 +1328,18 @@
     currentType = type;
     updateTypeUI();
     updateWeightFields();
-    currentBranch = { code: 'all', name: 'Praline' };
-    try { entries = JSON.parse(localStorage.getItem('pralineWY_all') || '[]'); } catch(e) { entries = []; }
+
+    // โหลด entries รวมจากทุกสาขา เพราะยังไม่รู้สาขาจนกว่าจะกรอกฟอร์ม
+    entries = loadAllEntries();
+
     document.getElementById('splash').classList.add('hidden');
     document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+
+    // ── ข้อ 1: สลับไปหน้า "บันทึก" เสมอ ──
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-form').classList.add('active');
+    document.querySelector('.tab').classList.add('active');
 
     // Form type badge
     document.getElementById('type-badge-yield').style.display = type === 'all' ? 'flex' : 'none';
@@ -1345,6 +1353,23 @@
     currentLogTab = type === 'all' ? 'yield' : 'waste';
     document.getElementById('log-yield-pane').style.display = type === 'all' ? '' : 'none';
     document.getElementById('log-waste-pane').style.display = type === 'waste' ? '' : 'none';
+  }
+
+  // โหลด entries รวมจากทุก key ใน localStorage
+  function loadAllEntries() {
+    const keys = ['pralineWY_001','pralineWY_002','pralineWY_003','pralineWY_all'];
+    let all = [];
+    keys.forEach(k => {
+      try {
+        const data = JSON.parse(localStorage.getItem(k) || '[]');
+        all = all.concat(data);
+      } catch(e) {}
+    });
+    // เรียงตาม id ล่าสุดก่อน (id = timestamp)
+    all.sort((a,b) => b.id - a.id);
+    // ลบ duplicate id
+    const seen = new Set();
+    return all.filter(e => { if (seen.has(e.id)) return false; seen.add(e.id); return true; });
   }
 
   function selectBranch(code, name) {
@@ -1373,6 +1398,37 @@
     }
   }
 
+  // ── Google Sheets Integration ──
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwLpkO_H-MmFOQhntbiN_tliTfo9qiSZKeY1CPg4yjP4GlleIVPpxWXigeDWJElYiNb/exec';
+
+  async function sendToSheet(entry) {
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          date: entry.date,
+          type: entry.type,
+          branchCode: entry.branchCode || '',
+          branchName: entry.branchName || '',
+          dept: entry.dept,
+          reporter: entry.reporter,
+          item: entry.item,
+          wasteWeight: entry.wasteWeight || '',
+          wasteUnit: entry.wasteUnit || '',
+          yieldWeight: entry.yieldWeight || '',
+          yieldUnit: entry.yieldUnit || '',
+          reason: entry.reason || '',
+          note: entry.note || ''
+        })
+      });
+    } catch(e) {
+      console.warn('Sheet sync failed:', e);
+    }
+  }
+
   function save() {
     localStorage.setItem(branchKey(), JSON.stringify(entries));
   }
@@ -1382,8 +1438,8 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('panel-' + tab).classList.add('active');
     el.classList.add('active');
-    if (tab === 'log') renderLog();
-    if (tab === 'summary') renderSummary();
+    if (tab === 'log') { entries = loadAllEntries(); renderLog(); }
+    if (tab === 'summary') { entries = loadAllEntries(); renderSummary(); }
   }
 
   // ── Type ──
@@ -1498,6 +1554,7 @@
     };
     entries.unshift(entry);
     save();
+    sendToSheet(entry); // ส่งข้อมูลเข้า Google Sheets
 
     ['f-item','f-waste-weight','f-yield-weight','f-note','f-reporter','f-dept','f-branch'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-reason').value = '';
