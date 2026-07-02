@@ -1554,7 +1554,6 @@
     };
     entries.unshift(entry);
     save();
-    sendToSheet(entry); // ส่งข้อมูลเข้า Google Sheets
 
     ['f-item','f-waste-weight','f-yield-weight','f-note','f-reporter','f-dept','f-branch'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-reason').value = '';
@@ -1565,7 +1564,9 @@
     document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
     photoDataURLs = [];
 
-    showSavedPopup(entry);
+    showSavedPopup(entry); // แสดง popup ก่อนเสมอ
+
+    sendToSheet(entry).catch(() => {}); // ส่ง Sheet ทีหลัง ไม่บล็อก UI
   }
 
   function showSavedPopup(entry) {
@@ -1845,36 +1846,40 @@
     const zip = new JSZip();
     const photoFolder = zip.folder('photos');
 
-    // Build CSV
-    const hdr = ['branch_code','branch_name','วันที่','แผนก','ผู้รายงาน','วัตถุดิบ','ประเภท',
-                  'waste_weight','waste_unit','yield_weight','yield_unit','สาเหตุ','หมายเหตุ','รูปถ่าย'];
+    // แยกตามประเภท
+    const wasteData  = data.filter(e => e.type === 'waste');
+    const yieldData  = data.filter(e => e.type === 'all');
 
-    const rows = data.map(e => {
-      // collect photo filenames for this entry
-      const photoNames = (e.photos || []).map((_, pi) => `photos/${e.id}_${pi + 1}.jpg`).join(' | ');
-      return [
-        e.branchCode||'', e.branchName||'',
-        e.date, e.dept, e.reporter, e.item,
-        e.type === 'all' ? 'Yield' : 'Waste',
-        e.wasteWeight != null ? e.wasteWeight : '',
-        e.wasteWeight != null ? e.wasteUnit : '',
-        e.yieldWeight != null ? e.yieldWeight : '',
-        e.yieldWeight != null ? e.yieldUnit : '',
-        e.reason || '', e.note || '',
-        photoNames
-      ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
-    });
+    const buildCSV = (rows, type) => {
+      const isYield = type === 'yield';
+      const hdr = isYield
+        ? ['branch_code','branch_name','วันที่','แผนก','ผู้รายงาน','วัตถุดิบ','น้ำหนักที่ซื้อมา','หน่วย','น้ำหนักหลังแต่ง','หน่วย','หมายเหตุ','รูปถ่าย']
+        : ['branch_code','branch_name','วันที่','แผนก','ผู้รายงาน','วัตถุดิบ','น้ำหนัก Waste','หน่วย','สาเหตุ','หมายเหตุ','รูปถ่าย'];
 
-    const csv = '\uFEFF' + [hdr.join(','), ...rows].join('\r\n');
-    zip.file('data.csv', csv);
+      const csvRows = rows.map(e => {
+        const photoNames = (e.photos || []).map((_, pi) => `photos/${e.id}_${pi+1}.jpg`).join(' | ');
+        const cols = isYield
+          ? [e.branchCode||'', e.branchName||'', e.date, e.dept, e.reporter, e.item,
+             e.wasteWeight ?? '', e.wasteUnit || '',
+             e.yieldWeight ?? '', e.yieldUnit || '',
+             e.note || '', photoNames]
+          : [e.branchCode||'', e.branchName||'', e.date, e.dept, e.reporter, e.item,
+             e.wasteWeight ?? '', e.wasteUnit || '',
+             e.reason || '', e.note || '', photoNames];
+        return cols.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+      });
+
+      return '\uFEFF' + [hdr.join(','), ...csvRows].join('\r\n');
+    };
+
+    if (wasteData.length)  zip.file('waste.csv',  buildCSV(wasteData, 'waste'));
+    if (yieldData.length)  zip.file('yield.csv',  buildCSV(yieldData, 'yield'));
 
     // Add photos
     data.forEach(e => {
       (e.photos || []).forEach((dataUrl, pi) => {
         const base64 = dataUrl.split(',')[1];
-        if (base64) {
-          photoFolder.file(`${e.id}_${pi + 1}.jpg`, base64, { base64: true });
-        }
+        if (base64) photoFolder.file(`${e.id}_${pi+1}.jpg`, base64, { base64: true });
       });
     });
 
@@ -1882,48 +1887,48 @@
     const readme = `Praline Waste & Yield Export
 ============================
 สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}
-รายการทั้งหมด: ${data.length} รายการ
+Waste: ${wasteData.length} รายการ
+Yield: ${yieldData.length} รายการ
 
 ไฟล์ในชุดนี้:
-- data.csv       : ข้อมูลทั้งหมด นำเข้า Excel / Google Sheets ได้เลย
-- photos/        : รูปถ่ายวัตถุดิบ ชื่อไฟล์ตรงกับคอลัมน์ "รูปถ่าย" ใน CSV
+- waste.csv   : ข้อมูล Waste
+- yield.csv   : ข้อมูล Yield
+- photos/     : รูปถ่ายวัตถุดิบ
 
 วิธีเปิด CSV ด้วย Excel:
 1. เปิด Excel → Data → From Text/CSV
-2. เลือกไฟล์ data.csv
+2. เลือกไฟล์ที่ต้องการ
 3. Encoding: UTF-8
 `;
     zip.file('README.txt', readme);
 
     const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-    const filename = `praline-wy-${new Date().toISOString().slice(0,10)}.zip`;
+    const filename = `praline-${exportTab}-${new Date().toISOString().slice(0,10)}.zip`;
 
-    // iOS Share Sheet (Web Share API)
+    // iOS Share Sheet
     if (navigator.share && navigator.canShare) {
       const file = new File([blob], filename, { type: 'application/zip' });
       if (navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             title: 'Praline Waste & Yield',
-            text: `ข้อมูล ${data.length} รายการ`,
+            text: `Waste ${wasteData.length} | Yield ${yieldData.length} รายการ`,
             files: [file]
           });
-          showToast(`✅ ส่งออก ${data.length} รายการสำเร็จ`);
+          showToast(`✅ ส่งออกสำเร็จ`);
           return;
         } catch(e) {
-          if (e.name === 'AbortError') return; // user cancelled
+          if (e.name === 'AbortError') return;
         }
       }
     }
 
-    // Fallback: download (Android / Desktop)
+    // Fallback: download
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
+    a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
-    showToast(`✅ ส่งออก ${data.length} รายการสำเร็จ`);
+    showToast(`✅ ส่งออก Waste ${wasteData.length} / Yield ${yieldData.length} รายการ`);
   }
 
   // ── Summary ──
