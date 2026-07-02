@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
+  /* ── DESIGN TOKENS ── */
   :root {
     --bg: #f7f5f0;
     --surface: #ffffff;
@@ -25,10 +26,12 @@
     --text: #1a1612;
     --text-2: #5a5040;
     --text-3: #8a7c68;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-xs: 7px;
+    --shadow: 0 1px 2px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +42,8 @@
     color: var(--text);
     min-height: 100vh;
     font-size: 15px;
-    line-height: 1.55;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* ── SPLASH ── */
@@ -51,35 +55,92 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 32px 24px;
+    padding: 40px 28px;
   }
 
   #splash.hidden { display: none; }
 
   .splash-logo {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.8px;
     color: var(--accent);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .splash-sub {
-    font-size: 13px;
+    font-size: 11px;
     color: var(--text-3);
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    margin-bottom: 40px;
+    margin-bottom: 48px;
+    font-weight: 500;
   }
 
   .splash-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 14px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
   }
+
+  .splash-cards {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .splash-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    font-family: 'Sarabun', sans-serif;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    box-shadow: var(--shadow);
+  }
+
+  .splash-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .splash-card:active { transform: scale(0.97); }
+
+  .yield-card:hover { border-color: #88c4a4; }
+  .waste-card:hover { border-color: #dda0a0; }
+
+  .splash-icon-wrap {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .yield-bg { background: #f0ebe0; }
+  .waste-bg { background: #fbeaea; }
+
+  .splash-card-label {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .yield-label { color: var(--green); }
+  .waste-label { color: var(--red); }
+
+  .splash-card-line {
+    width: 28px; height: 3px;
+    border-radius: 2px;
+  }
+
+  .yield-line { background: var(--accent-mid); }
+  .waste-line { background: #d08080; }
 
   .branch-list {
     width: 100%;
@@ -93,11 +154,12 @@
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px 20px;
+    padding: 18px 20px;
+    min-height: 56px;
     text-align: left;
     cursor: pointer;
     font-family: 'Sarabun', sans-serif;
-    transition: all 0.18s;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -107,41 +169,47 @@
   .branch-btn:hover {
     border-color: var(--accent-mid);
     background: var(--accent-light);
+    box-shadow: var(--shadow-md);
   }
 
+  .branch-btn:active { transform: scale(0.99); }
+
   .branch-btn-name { font-size: 15px; font-weight: 600; color: var(--text); }
-  .branch-btn-code { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: var(--text-3); background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; }
+  .branch-btn-code {
+    font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-3); background: var(--card);
+    border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px;
+  }
 
   /* ── HEADER ── */
   header {
-    background: var(--surface);
+    background: rgba(255,255,255,0.95);
     border-bottom: 1px solid var(--border);
-    padding: 0 16px;
+    padding: 0 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 54px;
+    height: 56px;
     position: sticky;
     top: 0;
     z-index: 200;
-    box-shadow: var(--shadow);
+    box-shadow: 0 1px 0 var(--border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .logo { display: flex; align-items: center; gap: 10px; }
 
   .logo-mark {
-    width: 32px; height: 32px;
+    width: 30px; height: 30px;
     background: var(--accent);
-    border-radius: 9px;
+    border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
+    flex-shrink: 0;
   }
 
-  .logo-text { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+  .logo-text { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
   .logo-yield { color: var(--accent); }
 
   .branch-pill {
@@ -151,30 +219,33 @@
     background: var(--accent-light);
     border: 1px solid #ddd0a8;
     border-radius: 20px;
-    padding: 5px 10px 5px 8px;
+    padding: 6px 12px 6px 8px;
     font-size: 12px;
     font-weight: 600;
     color: var(--accent);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background 0.15s;
+    min-height: 34px;
   }
 
   .branch-pill:hover { background: #ede5c8; }
-  .branch-pill-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+  .branch-pill-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
 
   /* ── TABS ── */
   .tabs {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 16px;
+    padding: 0 20px;
     display: flex;
     overflow-x: auto;
     scrollbar-width: none;
+    gap: 4px;
   }
   .tabs::-webkit-scrollbar { display: none; }
 
   .tab {
-    padding: 13px 14px;
+    padding: 0 16px;
+    height: 48px;
     font-size: 13px;
     font-weight: 600;
     color: var(--text-3);
@@ -184,26 +255,27 @@
     background: none;
     font-family: 'Sarabun', sans-serif;
     white-space: nowrap;
-    transition: all 0.15s;
-    letter-spacing: 0.2px;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.1px;
+    display: flex; align-items: center;
   }
 
   .tab:hover { color: var(--text-2); }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
   /* ── MAIN ── */
-  main { max-width: 680px; margin: 0 auto; padding: 16px 12px 80px; }
+  main { max-width: 680px; margin: 0 auto; padding: 20px 16px 96px; }
   .panel { display: none; }
   .panel.active { display: block; }
 
   @media (max-width: 420px) {
-    main { padding: 12px 10px 80px; }
-    .form-card { padding: 16px 14px; }
-    .tab { padding: 13px 12px; font-size: 12px; }
-    .type-btn { padding: 13px 8px; font-size: 14px; }
-    .btn-submit { font-size: 16px; padding: 15px; }
-    .log-card { padding: 12px 13px; }
-    .branch-pill { font-size: 11px; padding: 4px 9px 4px 7px; }
+    main { padding: 16px 12px 96px; }
+    .form-card { padding: 18px 16px; }
+    .tab { padding: 0 12px; font-size: 12px; }
+    .type-btn { font-size: 14px; }
+    .btn-submit { font-size: 16px; padding: 16px; }
+    .log-card { padding: 14px 14px; }
+    .branch-pill { font-size: 11px; }
   }
 
   /* ── TYPE SELECTOR ── */
@@ -211,118 +283,127 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .type-btn {
-    padding: 11px 8px;
+    padding: 14px 8px;
+    min-height: 48px;
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--surface);
     font-family: 'Sarabun', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-2);
     cursor: pointer;
     text-align: center;
     transition: all 0.15s;
+    letter-spacing: 0.1px;
   }
 
-  .type-btn:hover { border-color: var(--border-hover); }
+  .type-btn:hover { border-color: var(--border-hover); background: var(--card); }
+  .type-btn:active { transform: scale(0.98); }
 
   .type-btn.active-waste {
-    background: var(--red-light); border-color: #e0a0a0; color: var(--red);
+    background: var(--red-light); border-color: #dda0a0; color: var(--red);
+    box-shadow: 0 0 0 3px rgba(184,50,50,0.08);
   }
 
   .type-btn.active-yield {
-    background: var(--green-light); border-color: #90c8a8; color: var(--green);
+    background: var(--green-light); border-color: #88c4a4; color: var(--green);
+    box-shadow: 0 0 0 3px rgba(45,122,90,0.08);
   }
 
   .type-btn.active-all {
-    background: var(--accent-light); border-color: #d4b870; color: var(--accent);
+    background: var(--accent-light); border-color: #ceb468; color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139,105,20,0.10);
   }
 
   /* ── FORM CARD ── */
   .form-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: var(--radius);
+    padding: 22px 20px;
     box-shadow: var(--shadow);
   }
 
   .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 13px;
+    gap: 14px;
   }
 
   @media (max-width: 480px) {
     .form-grid { grid-template-columns: 1fr; }
   }
 
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
   .form-group.full { grid-column: 1 / -1; }
 
   label {
-    font-size: 13px; font-weight: 700; color: var(--text-2);
-    text-transform: uppercase; letter-spacing: 0.8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    padding-left: 1px;
   }
 
   input, select, textarea {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 11px 13px;
+    padding: 12px 14px;
     color: var(--text);
-    font-size: 15px;
+    font-size: 16px;
     font-family: 'Sarabun', sans-serif;
-    transition: all 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
     width: 100%;
     appearance: none; -webkit-appearance: none;
+    min-height: 48px;
   }
 
   input::placeholder, textarea::placeholder {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-3);
+    opacity: 0.8;
   }
 
   input:focus, textarea:focus {
     outline: none;
     border-color: var(--accent-mid);
-    box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
+    box-shadow: 0 0 0 3px rgba(196,154,42,0.12);
     background: #fff;
   }
 
   select:focus {
     outline: none;
     border-color: var(--accent-mid);
-    box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
+    box-shadow: 0 0 0 3px rgba(196,154,42,0.12);
     background-color: #fff;
   }
 
-  textarea { resize: vertical; min-height: 70px; }
+  textarea { resize: vertical; min-height: 76px; line-height: 1.55; }
 
   select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5040' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 13px center;
+    background-position: right 14px center;
     background-size: 12px 8px;
-    padding-right: 36px;
+    padding-right: 38px;
+    cursor: pointer;
   }
 
   select option { background: #fff; }
 
-  .weight-wrapper { display: flex; gap: 7px; }
+  .weight-wrapper { display: flex; gap: 8px; }
   .weight-wrapper input { flex: 1; }
-  .unit-select { width: 82px; flex-shrink: 0; font-size: 15px; }
+  .unit-select { width: 86px; flex-shrink: 0; font-size: 15px; }
 
   /* ── CHECKBOX ── */
-  /* ── CHECKBOX (shared style) ── */
-  input[type="checkbox"] {
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+  input[type="checkbox"] { cursor: pointer; flex-shrink: 0; }
 
   .entry-cb,
   .select-all-cb {
@@ -330,7 +411,9 @@
     -webkit-appearance: none !important;
     width: 22px !important;
     height: 22px !important;
-    border: 2px solid var(--border-hover) !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    border: 1.5px solid var(--border-hover) !important;
     border-radius: 6px !important;
     background: var(--surface) !important;
     cursor: pointer !important;
@@ -352,40 +435,43 @@
   .select-all-cb:checked::after {
     content: '';
     display: block;
-    width: 6px;
-    height: 10px;
-    border: 2.5px solid #fff;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
     border-top: none;
     border-left: none;
     transform: rotate(45deg);
     position: absolute;
-    top: 3px;
+    top: 4px;
     left: 7px;
   }
 
-
   /* ── PHOTO UPLOAD ── */
   .photo-upload {
-    border: 1.5px dashed var(--border);
+    border: 1.5px dashed var(--border-hover);
     border-radius: var(--radius-sm);
-    padding: 20px 16px;
+    padding: 22px 16px;
     text-align: center;
     cursor: pointer;
     transition: all 0.18s;
     position: relative;
     background: var(--card);
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .photo-upload:hover { border-color: var(--accent-mid); background: var(--accent-light); }
   .photo-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .photo-icon { font-size: 24px; margin-bottom: 6px; }
-  .photo-label { font-size: 13px; color: var(--text-3); }
+  .photo-icon { font-size: 22px; margin-bottom: 5px; }
+  .photo-label { font-size: 13px; color: var(--text-3); line-height: 1.4; }
   .photo-label strong { color: var(--accent); }
 
-  .photo-preview { display: none; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-
+  .photo-preview { display: none; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .photo-preview-item { position: relative; width: 72px; height: 72px; }
-  .photo-preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 7px; border: 1.5px solid var(--border); }
+  .photo-preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
   .photo-remove {
     position: absolute; top: -5px; right: -5px;
     background: var(--red); color: #fff;
@@ -395,31 +481,34 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  /* ── SUBMIT BTN ── */
+  /* ── SUBMIT BUTTON ── */
   .btn-submit {
-    margin-top: 18px; width: 100%;
-    padding: 13px;
+    margin-top: 20px; width: 100%;
+    padding: 15px;
+    min-height: 52px;
     background: var(--accent);
     color: #fff;
     border: none; border-radius: var(--radius-sm);
-    font-size: 15px; font-weight: 700;
+    font-size: 16px; font-weight: 700;
     font-family: 'Sarabun', sans-serif;
     cursor: pointer;
-    transition: all 0.18s;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 2px 8px rgba(139,105,20,0.25);
+    box-shadow: 0 2px 8px rgba(139,105,20,0.20);
+    letter-spacing: 0.2px;
   }
 
-  .btn-submit:hover { background: #7a5c10; transform: translateY(-1px); }
-  .btn-submit:active { transform: none; }
+  .btn-submit:hover { background: #7a5c10; box-shadow: 0 4px 12px rgba(139,105,20,0.28); }
+  .btn-submit:active { transform: scale(0.99); box-shadow: none; }
 
-  /* ── LOG ── */
+  /* ── LOG SECTION ── */
   .log-subtab {
-    flex: 1; padding: 12px 8px;
+    flex: 1; padding: 0 8px;
+    height: 48px;
     font-size: 13px; font-weight: 600;
     color: var(--text-3); background: none; border: none;
     font-family: 'Sarabun', sans-serif; cursor: pointer;
-    transition: all 0.15s;
+    transition: color 0.15s, background 0.15s;
     display: flex; align-items: center; justify-content: center; gap: 6px;
   }
 
@@ -436,72 +525,81 @@
   .count-badge {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 20px; padding: 2px 9px;
-    font-size: 12px; color: var(--text-3); font-weight: 600;
+    font-size: 11px; color: var(--text-3); font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
   }
 
   .filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
 
   .filter-select {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 7px 10px;
-    color: var(--text); font-size: 12px; font-family: 'Sarabun', sans-serif;
+    border-radius: var(--radius-xs); padding: 8px 10px;
+    color: var(--text); font-size: 13px; font-family: 'Sarabun', sans-serif;
     appearance: none; -webkit-appearance: none;
+    min-height: 36px; cursor: pointer;
   }
 
   .filter-select:focus { outline: none; border-color: var(--accent-mid); }
 
   .btn-sm {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); color: var(--text-2);
-    padding: 6px 10px; font-size: 12px; cursor: pointer;
+    border-radius: var(--radius-xs); color: var(--text-2);
+    padding: 8px 12px; font-size: 13px; cursor: pointer;
     font-family: 'Sarabun', sans-serif;
     transition: all 0.15s;
     display: inline-flex; align-items: center; gap: 5px;
+    min-height: 36px;
   }
 
-  .btn-sm:hover { border-color: var(--border-hover); }
+  .btn-sm:hover { border-color: var(--border-hover); background: var(--card); }
 
   .btn-export {
-    background: var(--green-light); border: 1px solid #a0d4b8;
-    border-radius: var(--radius-sm); color: var(--green);
-    padding: 7px 13px; font-size: 12px; font-weight: 600; cursor: pointer;
+    background: var(--green-light); border: 1px solid #9ecfb4;
+    border-radius: var(--radius-xs); color: var(--green);
+    padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
     font-family: 'Sarabun', sans-serif;
     transition: all 0.15s;
     display: inline-flex; align-items: center; gap: 5px;
+    min-height: 36px;
   }
 
-  .btn-export:hover { background: #d0eddf; }
+  .btn-export:hover { background: #cce8d8; }
 
   /* ── LOG CARD ── */
-  .log-empty { text-align: center; padding: 50px 20px; color: var(--text-3); }
-  .log-empty .ei { font-size: 36px; margin-bottom: 10px; }
+  .log-empty { text-align: center; padding: 56px 20px; color: var(--text-3); }
+  .log-empty .ei { font-size: 32px; margin-bottom: 12px; opacity: 0.6; }
+  .log-empty p { font-size: 14px; }
 
   .log-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px 16px;
+    padding: 16px;
     margin-bottom: 8px;
     box-shadow: var(--shadow);
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
 
-  .log-card:hover { border-color: var(--border-hover); }
+  .log-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); }
 
-  .log-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .log-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
   .log-left { flex: 1; min-width: 0; }
-  .log-name { font-size: 15px; font-weight: 700; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .log-name {
+    font-size: 15px; font-weight: 700; margin-bottom: 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: -0.1px;
+  }
 
   .log-meta { display: flex; flex-wrap: wrap; gap: 5px; }
 
   .tag {
     display: inline-flex; align-items: center; gap: 3px;
     font-size: 11px; border-radius: 5px;
-    padding: 2px 7px; border: 1px solid;
-    font-weight: 600;
+    padding: 3px 7px; border: 1px solid;
+    font-weight: 600; letter-spacing: 0.1px;
   }
 
-  .tag-waste { background: var(--red-light); color: var(--red); border-color: #e0a0a0; }
+  .tag-waste { background: var(--red-light); color: var(--red); border-color: #dda0a0; }
   .tag-yield { background: var(--green-light); color: var(--green); border-color: #90c8a8; }
   .tag-all { background: var(--accent-light); color: var(--accent); border-color: #d4b870; }
   .tag-dept { background: var(--blue-light); color: var(--blue); border-color: #a0c0e0; }
@@ -509,23 +607,27 @@
   .tag-reason { background: #fdf8ee; color: #8a6010; border-color: #e8d898; }
 
   .log-right { text-align: right; flex-shrink: 0; }
-  .log-weight { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500; color: var(--accent); white-space: nowrap; }
+  .log-weight { font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 500; color: var(--accent); white-space: nowrap; }
   .log-weight-unit { font-size: 11px; color: var(--text-3); }
 
   .log-note {
-    font-size: 12px; color: var(--text-2); margin: 7px 0;
-    padding: 7px 10px; background: var(--card);
-    border-radius: 6px; border-left: 2px solid var(--border-hover);
+    font-size: 13px; color: var(--text-2); margin: 8px 0;
+    padding: 8px 12px; background: var(--card);
+    border-radius: var(--radius-xs); border-left: 2px solid var(--border-hover);
     line-height: 1.5;
   }
 
-  .log-photos { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
-  .log-photos img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s; }
-  .log-photos img:hover { border-color: var(--accent-mid); }
+  .log-photos { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .log-photos img {
+    width: 56px; height: 56px; object-fit: cover;
+    border-radius: 8px; border: 1px solid var(--border);
+    cursor: pointer; transition: border-color 0.15s, opacity 0.15s;
+  }
+  .log-photos img:hover { border-color: var(--accent-mid); opacity: 0.9; }
 
   .log-actions {
     display: flex; justify-content: flex-end; gap: 6px;
-    margin-top: 10px; padding-top: 10px;
+    margin-top: 12px; padding-top: 12px;
     border-top: 1px solid var(--border);
   }
 
@@ -544,31 +646,47 @@
 
   .stat-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px 16px;
+    border-radius: var(--radius); padding: 16px;
     box-shadow: var(--shadow);
   }
 
-  .stat-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 8px; }
-  .stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500; color: var(--text); line-height: 1.1; }
-  .stat-unit { font-size: 11px; color: var(--text-3); margin-top: 3px; font-family: 'Sarabun', sans-serif; }
+  .stat-label {
+    font-size: 10px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.9px; margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: 'IBM Plex Mono', monospace; font-size: 26px;
+    font-weight: 500; color: var(--text); line-height: 1.1;
+  }
+  .stat-unit { font-size: 11px; color: var(--text-3); margin-top: 4px; font-family: 'Sarabun', sans-serif; }
   .stat-accent { color: var(--accent); }
   .stat-red { color: var(--red); }
   .stat-green { color: var(--green); }
 
-  .dept-breakdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
-  .breakdown-title { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+  .dept-breakdown {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .breakdown-title {
+    font-size: 10px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.9px; margin-bottom: 16px;
+  }
 
-  .dept-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .dept-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
   .dept-row:last-child { border-bottom: none; }
-  .dept-label { min-width: 75px; font-size: 13px; font-weight: 600; color: var(--text-2); }
-  .dept-bar-wrap { flex: 1; height: 5px; background: var(--card); border-radius: 3px; overflow: hidden; }
-  .dept-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-mid)); border-radius: 3px; transition: width 0.5s ease; }
+  .dept-label { min-width: 80px; font-size: 13px; font-weight: 600; color: var(--text-2); }
+  .dept-bar-wrap { flex: 1; height: 4px; background: var(--card); border-radius: 2px; overflow: hidden; }
+  .dept-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
   .dept-val { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent); min-width: 65px; text-align: right; }
 
-  /* ── MODAL ── */
+  /* ── MODAL (bottom sheet) ── */
   .modal-backdrop {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.35); z-index: 500;
+    background: rgba(0,0,0,0.30); z-index: 500;
     align-items: flex-end; justify-content: center;
     padding: 0;
   }
@@ -579,90 +697,116 @@
     background: var(--surface);
     border-radius: 20px 20px 0 0;
     width: 100%; max-width: 600px;
-    max-height: 90vh; overflow-y: auto;
-    padding: 20px 20px 32px;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+    max-height: 92vh; overflow-y: auto;
+    padding: 8px 20px 36px;
+    box-shadow: var(--shadow-lg);
   }
 
-  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 18px; }
-  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+  .modal-handle {
+    width: 32px; height: 3px; background: var(--border-hover);
+    border-radius: 2px; margin: 12px auto 20px;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.2px; }
 
-  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
   .btn-save {
-    flex: 1; padding: 12px; background: var(--accent); color: #fff;
+    flex: 1; padding: 14px; background: var(--accent); color: #fff;
     border: none; border-radius: var(--radius-sm);
-    font-size: 14px; font-weight: 700; font-family: 'Sarabun', sans-serif; cursor: pointer;
-    transition: background 0.15s;
+    font-size: 15px; font-weight: 700; font-family: 'Sarabun', sans-serif;
+    cursor: pointer; transition: background 0.15s; min-height: 48px;
   }
-
   .btn-save:hover { background: #7a5c10; }
 
   .btn-cancel {
-    flex: 1; padding: 12px; background: var(--card); color: var(--text-2);
+    flex: 1; padding: 14px; background: var(--card); color: var(--text-2);
     border: 1px solid var(--border); border-radius: var(--radius-sm);
-    font-size: 14px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer;
+    font-size: 15px; font-weight: 600; font-family: 'Sarabun', sans-serif;
+    cursor: pointer; min-height: 48px;
+    transition: border-color 0.15s, background 0.15s;
   }
+  .btn-cancel:hover { border-color: var(--border-hover); background: var(--bg); }
 
-  /* ── CONFIRM ── */
+  /* ── CONFIRM DIALOG ── */
   .confirm-backdrop {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45); z-index: 600;
-    align-items: center; justify-content: center; padding: 16px;
+    background: rgba(0,0,0,0.40); z-index: 600;
+    align-items: center; justify-content: center; padding: 20px;
   }
 
   .confirm-backdrop.open { display: flex; }
 
   .confirm-box {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 24px;
+    border-radius: 18px; padding: 28px 24px;
     width: 100%; max-width: 320px; text-align: center;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
   }
 
-  .confirm-icon { font-size: 32px; margin-bottom: 10px; }
-  .confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 7px; }
-  .confirm-desc { font-size: 13px; color: var(--text-2); margin-bottom: 18px; line-height: 1.5; }
+  .confirm-icon { font-size: 28px; margin-bottom: 12px; }
+  .confirm-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.2px; }
+  .confirm-desc { font-size: 14px; color: var(--text-2); margin-bottom: 24px; line-height: 1.55; }
   .confirm-row { display: flex; gap: 10px; }
 
   .btn-confirm-del {
-    flex: 1; padding: 11px; background: var(--red); color: #fff;
+    flex: 1; padding: 13px; background: var(--red); color: #fff;
     border: none; border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 700; font-family: 'Sarabun', sans-serif; cursor: pointer;
+    font-size: 14px; font-weight: 700; font-family: 'Sarabun', sans-serif;
+    cursor: pointer; min-height: 48px; transition: background 0.15s;
   }
+  .btn-confirm-del:hover { background: #a02828; }
 
   .btn-confirm-cancel {
-    flex: 1; padding: 11px; background: var(--card); color: var(--text-2);
+    flex: 1; padding: 13px; background: var(--card); color: var(--text-2);
     border: 1px solid var(--border); border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer;
+    font-size: 14px; font-weight: 600; font-family: 'Sarabun', sans-serif;
+    cursor: pointer; min-height: 48px;
+    transition: border-color 0.15s, background 0.15s;
   }
+  .btn-confirm-cancel:hover { border-color: var(--border-hover); background: var(--bg); }
 
   /* ── TOAST ── */
   .toast {
-    position: fixed; bottom: 16px; left: 12px; right: 12px;
-    transform: none;
-    background: #1a2e1a; color: #6dd49a;
-    border: 1px solid rgba(109,212,154,0.3);
-    padding: 13px 18px; border-radius: 10px;
+    position: fixed; bottom: 20px; left: 16px; right: 16px;
+    background: #16241a; color: #72d49a;
+    border: 1px solid rgba(114,212,154,0.25);
+    padding: 14px 18px; border-radius: 12px;
     font-weight: 600; font-size: 14px;
-    display: none; align-items: center; gap: 8px;
+    display: none; align-items: center; gap: 10px;
     z-index: 999;
-    box-shadow: var(--shadow-md);
-    animation: slideUp 0.25s ease;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.22s ease;
+    letter-spacing: 0.1px;
   }
 
   .toast.show { display: flex; }
-  .toast.err { background: #2a1010; color: #e06060; border-color: rgba(224,96,96,0.3); }
+  .toast.err { background: #241616; color: #e06464; border-color: rgba(224,100,100,0.25); }
 
-  @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes slideUp {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
 
   /* ── LIGHTBOX ── */
-  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 800; align-items: center; justify-content: center; }
+  .lightbox {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.90); z-index: 800;
+    align-items: center; justify-content: center;
+  }
   .lightbox.open { display: flex; }
-  .lightbox img { max-width: 92vw; max-height: 88vh; border-radius: 10px; }
-  .lightbox-close { position: absolute; top: 16px; right: 16px; background: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .lightbox img { max-width: 92vw; max-height: 88vh; border-radius: 12px; box-shadow: var(--shadow-lg); }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(255,255,255,0.12); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    border-radius: 50%; width: 38px; height: 38px;
+    font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.20); }
 
-  /* ── TYPE HEADER ACCENT ── */
+  /* ── TYPE HEADER ACCENTS ── */
   .type-header-waste { color: var(--red); }
   .type-header-yield { color: var(--green); }
   .type-header-all { color: var(--accent); }
@@ -674,12 +818,63 @@
 <div id="splash">
   <div class="splash-logo">Praline</div>
   <div class="splash-sub">Waste &amp; Yield</div>
-  <div class="splash-label">Praline Ratchapruke</div>
-  <div class="branch-list">
-    <button class="branch-btn" onclick="selectBranch('001','Praline Ratchapruke')">
-      <span class="branch-btn-name">Praline Ratchapruke</span>
-      <span class="branch-btn-code">001</span>
+  <div class="splash-label">เลือกประเภทการบันทึก</div>
+  <div class="splash-cards">
+
+    <!-- YIELD card -->
+    <button class="splash-card yield-card" onclick="splashSelectType('all')">
+      <div class="splash-icon-wrap yield-bg">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- sparkles -->
+          <path d="M22 18 L23.5 14 L25 18 L29 19.5 L25 21 L23.5 25 L22 21 L18 19.5 Z" fill="#c49a2a" opacity="0.9"/>
+          <path d="M16 30 L17 27.5 L18 30 L20.5 31 L18 32 L17 34.5 L16 32 L13.5 31 Z" fill="#c49a2a" opacity="0.6"/>
+          <!-- bowl -->
+          <ellipse cx="40" cy="54" rx="20" ry="5" fill="#8b6914" opacity="0.25"/>
+          <path d="M20 44 Q20 62 40 62 Q60 62 60 44 Z" fill="#c49a2a"/>
+          <path d="M20 44 Q20 62 40 62 Q60 62 60 44" stroke="#8b6914" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- rim -->
+          <rect x="17" y="41" width="46" height="6" rx="3" fill="#8b6914"/>
+          <!-- content -->
+          <ellipse cx="40" cy="41" rx="18" ry="5" fill="#f5eedc"/>
+          <!-- arrow up -->
+          <line x1="40" y1="38" x2="40" y2="22" stroke="#2d7a5a" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M32 29 L40 20 L48 29" fill="#2d7a5a"/>
+        </svg>
+      </div>
+      <div class="splash-card-label yield-label">YIELD</div>
+      <div class="splash-card-line yield-line"></div>
     </button>
+
+    <!-- WASTE card -->
+    <button class="splash-card waste-card" onclick="splashSelectType('waste')">
+      <div class="splash-icon-wrap waste-bg">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- bin body -->
+          <rect x="22" y="34" width="36" height="30" rx="4" fill="#b83232"/>
+          <!-- bin lines -->
+          <line x1="32" y1="40" x2="32" y2="58" stroke="#f5eedc" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="40" y1="40" x2="40" y2="58" stroke="#f5eedc" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="48" y1="40" x2="48" y2="58" stroke="#f5eedc" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- lid -->
+          <rect x="18" y="28" width="44" height="8" rx="4" fill="#b83232"/>
+          <!-- handle -->
+          <rect x="34" y="22" width="12" height="8" rx="3" fill="#b83232"/>
+          <!-- trash dots -->
+          <circle cx="29" cy="27" r="2" fill="#c84848" opacity="0.6"/>
+          <circle cx="35" cy="24" r="1.5" fill="#c84848" opacity="0.5"/>
+          <circle cx="42" cy="25" r="2" fill="#c84848" opacity="0.5"/>
+          <circle cx="50" cy="26" r="1.5" fill="#c84848" opacity="0.4"/>
+          <!-- X badge -->
+          <circle cx="57" cy="54" r="10" fill="#fdf0f0" stroke="#f5eedc" stroke-width="1.5"/>
+          <circle cx="57" cy="54" r="8" fill="#b83232"/>
+          <line x1="53" y1="50" x2="61" y2="58" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="61" y1="50" x2="53" y2="58" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="splash-card-label waste-label">WASTE</div>
+      <div class="splash-card-line waste-line"></div>
+    </button>
+
   </div>
 </div>
 
@@ -689,9 +884,9 @@
     <div class="logo-mark">🍮</div>
     <span class="logo-text">Praline <span class="logo-yield">W&amp;Y</span></span>
   </div>
-  <div class="branch-pill" onclick="changeBranch()" title="เปลี่ยนสาขา">
+  <div class="branch-pill" onclick="changeBranch()" title="หน้าหลัก">
     <div class="branch-pill-dot"></div>
-    <span id="headerBranch">—</span>
+    <span id="headerBranch">Praline W&amp;Y</span>
   </div>
 </header>
 
@@ -707,10 +902,53 @@
   <!-- ═══ FORM ═══ -->
   <div class="panel active" id="panel-form">
 
-    <!-- Type Selector -->
-    <div class="type-selector">
-      <button class="type-btn active-all" id="btn-all" onclick="setType('all')">🟢 Yield</button>
-      <button class="type-btn" id="btn-waste" onclick="setType('waste')">🔴 Waste</button>
+    <!-- Type indicator (read-only, set from splash) -->
+    <div id="type-indicator" style="margin-bottom:16px;">
+      <div id="type-badge-yield" style="display:none; align-items:center; gap:14px; padding:14px 16px; background:var(--green-light); border:1.5px solid #88c4a4; border-radius:var(--radius);">
+        <div style="width:56px;height:56px;background:#e0f0e8;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 18 L23.5 14 L25 18 L29 19.5 L25 21 L23.5 25 L22 21 L18 19.5 Z" fill="#c49a2a" opacity="0.9"/>
+            <path d="M16 30 L17 27.5 L18 30 L20.5 31 L18 32 L17 34.5 L16 32 L13.5 31 Z" fill="#c49a2a" opacity="0.6"/>
+            <ellipse cx="40" cy="54" rx="20" ry="5" fill="#8b6914" opacity="0.25"/>
+            <path d="M20 44 Q20 62 40 62 Q60 62 60 44 Z" fill="#c49a2a"/>
+            <path d="M20 44 Q20 62 40 62 Q60 62 60 44" stroke="#8b6914" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <rect x="17" y="41" width="46" height="6" rx="3" fill="#8b6914"/>
+            <ellipse cx="40" cy="41" rx="18" ry="5" fill="#f5eedc"/>
+            <line x1="40" y1="38" x2="40" y2="22" stroke="#2d7a5a" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M32 29 L40 20 L48 29" fill="#2d7a5a"/>
+          </svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px; font-weight:800; color:var(--green); letter-spacing:1px; text-transform:uppercase;">Yield</div>
+          <div style="font-size:12px; color:var(--green); opacity:0.75; margin-top:2px;">บันทึกน้ำหนักที่ซื้อมาและหลังแต่ง</div>
+        </div>
+        <button onclick="changeBranch()" style="background:none; border:1px solid #88c4a4; border-radius:6px; font-size:12px; color:var(--green); cursor:pointer; font-family:Sarabun,sans-serif; padding:5px 10px; white-space:nowrap; opacity:0.8;">เปลี่ยน</button>
+      </div>
+      <div id="type-badge-waste" style="display:none; align-items:center; gap:14px; padding:14px 16px; background:var(--red-light); border:1.5px solid #dda0a0; border-radius:var(--radius);">
+        <div style="width:56px;height:56px;background:#f5dada;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="22" y="34" width="36" height="30" rx="4" fill="#b83232"/>
+            <line x1="32" y1="40" x2="32" y2="58" stroke="#f5eedc" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="40" y1="40" x2="40" y2="58" stroke="#f5eedc" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="48" y1="40" x2="48" y2="58" stroke="#f5eedc" stroke-width="2.5" stroke-linecap="round"/>
+            <rect x="18" y="28" width="44" height="8" rx="4" fill="#b83232"/>
+            <rect x="34" y="22" width="12" height="8" rx="3" fill="#b83232"/>
+            <circle cx="29" cy="27" r="2" fill="#c84848" opacity="0.6"/>
+            <circle cx="35" cy="24" r="1.5" fill="#c84848" opacity="0.5"/>
+            <circle cx="42" cy="25" r="2" fill="#c84848" opacity="0.5"/>
+            <circle cx="50" cy="26" r="1.5" fill="#c84848" opacity="0.4"/>
+            <circle cx="57" cy="54" r="10" fill="#fdf0f0" stroke="#f5eedc" stroke-width="1.5"/>
+            <circle cx="57" cy="54" r="8" fill="#b83232"/>
+            <line x1="53" y1="50" x2="61" y2="58" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="61" y1="50" x2="53" y2="58" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px; font-weight:800; color:var(--red); letter-spacing:1px; text-transform:uppercase;">Waste</div>
+          <div style="font-size:12px; color:var(--red); opacity:0.75; margin-top:2px;">บันทึกวัตถุดิบที่สูญเสีย</div>
+        </div>
+        <button onclick="changeBranch()" style="background:none; border:1px solid #dda0a0; border-radius:6px; font-size:12px; color:var(--red); cursor:pointer; font-family:Sarabun,sans-serif; padding:5px 10px; white-space:nowrap; opacity:0.8;">เปลี่ยน</button>
+      </div>
     </div>
 
     <div class="form-card">
@@ -719,6 +957,16 @@
         <div class="form-group full">
           <label>วันที่บันทึก</label>
           <input type="date" id="f-date">
+        </div>
+
+        <div class="form-group full">
+          <label>สาขา</label>
+          <select id="f-branch" onchange="onBranchChange()">
+            <option value="">— เลือกสาขา —</option>
+            <option value="001">Praline Sathorn</option>
+            <option value="002">Praline Bangna</option>
+            <option value="003">Praline Ratchapruke</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -802,14 +1050,40 @@
   <!-- ═══ LOG ═══ -->
   <div class="panel" id="panel-log">
 
-    <!-- Sub-tabs -->
-    <div style="display:flex; gap:0; margin-bottom:16px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;">
-      <button class="log-subtab active" id="subtab-yield" onclick="switchLogTab('yield')">
-        🟢 Yield <span class="count-badge" id="logCountYield" style="background:var(--green-light);color:var(--green);border-color:#90c8a8;">0</span>
-      </button>
-      <button class="log-subtab" id="subtab-waste" onclick="switchLogTab('waste')">
-        🔴 Waste <span class="count-badge" id="logCountWaste" style="background:var(--red-light);color:var(--red);border-color:#e0a0a0;">0</span>
-      </button>
+    <!-- Type header (shows selected type from splash) -->
+    <div id="log-type-header-yield" style="display:none; align-items:center; gap:12px; padding:12px 16px; background:var(--green-light); border:1.5px solid #88c4a4; border-radius:var(--radius); margin-bottom:16px;">
+      <div style="width:40px;height:40px;background:#e0f0e8;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="24" height="24" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 44 Q20 62 40 62 Q60 62 60 44 Z" fill="#c49a2a"/>
+          <rect x="17" y="41" width="46" height="6" rx="3" fill="#8b6914"/>
+          <ellipse cx="40" cy="41" rx="18" ry="5" fill="#f5eedc"/>
+          <line x1="40" y1="38" x2="40" y2="22" stroke="#2d7a5a" stroke-width="4" stroke-linecap="round"/>
+          <path d="M32 29 L40 20 L48 29" fill="#2d7a5a"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:var(--green);letter-spacing:1px;text-transform:uppercase;">Yield</div>
+        <div style="font-size:11px;color:var(--green);opacity:0.75;">รายการบันทึก Yield</div>
+      </div>
+      <span class="count-badge" id="logCountYield" style="margin-left:auto;background:var(--green-light);color:var(--green);border-color:#90c8a8;">0</span>
+    </div>
+
+    <div id="log-type-header-waste" style="display:none; align-items:center; gap:12px; padding:12px 16px; background:var(--red-light); border:1.5px solid #dda0a0; border-radius:var(--radius); margin-bottom:16px;">
+      <div style="width:40px;height:40px;background:#f5dada;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="24" height="24" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="22" y="34" width="36" height="30" rx="4" fill="#b83232"/>
+          <line x1="32" y1="40" x2="32" y2="58" stroke="#f5eedc" stroke-width="3" stroke-linecap="round"/>
+          <line x1="40" y1="40" x2="40" y2="58" stroke="#f5eedc" stroke-width="3" stroke-linecap="round"/>
+          <line x1="48" y1="40" x2="48" y2="58" stroke="#f5eedc" stroke-width="3" stroke-linecap="round"/>
+          <rect x="18" y="28" width="44" height="8" rx="4" fill="#b83232"/>
+          <rect x="34" y="22" width="12" height="8" rx="3" fill="#b83232"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:var(--red);letter-spacing:1px;text-transform:uppercase;">Waste</div>
+        <div style="font-size:11px;color:var(--red);opacity:0.75;">รายการบันทึก Waste</div>
+      </div>
+      <span class="count-badge" id="logCountWaste" style="margin-left:auto;background:var(--red-light);color:var(--red);border-color:#e0a0a0;">0</span>
     </div>
 
     <!-- Shared filters -->
@@ -825,7 +1099,7 @@
       <button class="btn-sm" onclick="clearFilters()">✕ ล้าง</button>
     </div>
 
-    <!-- Yield tab -->
+    <!-- Yield pane -->
     <div id="log-yield-pane">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div id="selectBarYield" style="display:none; align-items:center; gap:10px;">
@@ -840,7 +1114,7 @@
       <div id="logListYield"></div>
     </div>
 
-    <!-- Waste tab -->
+    <!-- Waste pane -->
     <div id="log-waste-pane" style="display:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div id="selectBarWaste" style="display:none; align-items:center; gap:10px;">
@@ -1041,7 +1315,7 @@
 
   function branchKey() { return 'pralineWY_' + currentBranch.code; }
 
-  // ── Init ── (splash แสดงทุกครั้งที่เปิดหน้า ไม่ cache สาขา)
+  // ── Init ── (splash แสดงทุกครั้งที่เปิดหน้า)
   (function init() {
     const now = new Date();
     document.getElementById('f-date').value = now.toISOString().slice(0,10);
@@ -1049,9 +1323,32 @@
     updateWeightFields();
   })();
 
+  // เลือกประเภทจาก splash แล้วเข้าฟอร์มเลย
+  function splashSelectType(type) {
+    currentType = type;
+    updateTypeUI();
+    updateWeightFields();
+    currentBranch = { code: 'all', name: 'Praline' };
+    try { entries = JSON.parse(localStorage.getItem('pralineWY_all') || '[]'); } catch(e) { entries = []; }
+    document.getElementById('splash').classList.add('hidden');
+    document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+
+    // Form type badge
+    document.getElementById('type-badge-yield').style.display = type === 'all' ? 'flex' : 'none';
+    document.getElementById('type-badge-waste').style.display = type === 'waste' ? 'flex' : 'none';
+
+    // Log type header
+    document.getElementById('log-type-header-yield').style.display = type === 'all' ? 'flex' : 'none';
+    document.getElementById('log-type-header-waste').style.display = type === 'waste' ? 'flex' : 'none';
+
+    // Show correct log pane, hide the other
+    currentLogTab = type === 'all' ? 'yield' : 'waste';
+    document.getElementById('log-yield-pane').style.display = type === 'all' ? '' : 'none';
+    document.getElementById('log-waste-pane').style.display = type === 'waste' ? '' : 'none';
+  }
+
   function selectBranch(code, name) {
     currentBranch = { code, name };
-    // โหลด entries ของสาขานี้จาก localStorage
     try { entries = JSON.parse(localStorage.getItem('pralineWY_' + code) || '[]'); } catch(e) { entries = []; }
     document.getElementById('headerBranch').textContent = name;
     document.getElementById('splash').classList.add('hidden');
@@ -1060,6 +1357,20 @@
 
   function changeBranch() {
     document.getElementById('splash').classList.remove('hidden');
+    document.getElementById('type-badge-yield').style.display = 'none';
+    document.getElementById('type-badge-waste').style.display = 'none';
+    document.getElementById('log-type-header-yield').style.display = 'none';
+    document.getElementById('log-type-header-waste').style.display = 'none';
+  }
+
+  function onBranchChange() {
+    const sel = document.getElementById('f-branch');
+    const code = sel.value;
+    const name = sel.options[sel.selectedIndex].text;
+    if (code) {
+      currentBranch = { code, name };
+      try { entries = JSON.parse(localStorage.getItem('pralineWY_' + code) || '[]'); } catch(e) { entries = []; }
+    }
   }
 
   function save() {
@@ -1083,10 +1394,8 @@
   }
 
   function updateTypeUI() {
-    ['waste','all'].forEach(t => {
-      const btn = document.getElementById('btn-' + t);
-      if (btn) btn.className = 'type-btn' + (currentType === t ? ' active-' + t : '');
-    });
+    // type selector buttons removed — type set from splash
+    // just ensure weight fields are correct
   }
 
   function mirrorUnit() {
@@ -1157,6 +1466,9 @@
   // ── Submit ──
   function submitEntry() {
     const date = document.getElementById('f-date').value;
+    const branchSel = document.getElementById('f-branch');
+    const branchCode = branchSel.value;
+    const branchName = branchCode ? branchSel.options[branchSel.selectedIndex].text : '';
     const dept = document.getElementById('f-dept').value;
     const reporter = document.getElementById('f-reporter').value.trim();
     const item = document.getElementById('f-item').value.trim();
@@ -1167,15 +1479,19 @@
     const yieldW = document.getElementById('f-yield-weight').value;
     const yieldU = document.getElementById('f-yield-unit').value;
 
-    if (!date || !dept || !reporter || !item) { showToast('⚠️ กรุณากรอกข้อมูลให้ครบ', true); return; }
+    if (!date || !branchCode || !dept || !reporter || !item) { showToast('⚠️ กรุณากรอกข้อมูลให้ครบ', true); return; }
     if (currentType === 'waste' && !reason) { showToast('⚠️ กรุณาเลือกสาเหตุ', true); return; }
     if ((currentType === 'waste') && !wasteW) { showToast('⚠️ กรุณากรอกน้ำหนัก Waste', true); return; }
     if (currentType === 'all' && (!wasteW || !yieldW)) { showToast('⚠️ กรุณากรอกน้ำหนักให้ครบทั้งสองช่อง', true); return; }
 
+    // อัปเดต currentBranch ตามที่เลือกในฟอร์ม
+    currentBranch = { code: branchCode, name: branchName };
+    try { entries = JSON.parse(localStorage.getItem('pralineWY_' + branchCode) || '[]'); } catch(e) { entries = []; }
+
     const entry = {
       id: Date.now(), date, dept, reporter, item, reason, note,
       type: currentType,
-      branchCode: currentBranch.code, branchName: currentBranch.name,
+      branchCode, branchName,
       wasteWeight: wasteW ? parseFloat(wasteW) : null, wasteUnit: wasteU,
       yieldWeight: yieldW ? parseFloat(yieldW) : null, yieldUnit: yieldU,
       photos: [...photoDataURLs]
@@ -1183,7 +1499,7 @@
     entries.unshift(entry);
     save();
 
-    ['f-item','f-waste-weight','f-yield-weight','f-note','f-reporter','f-dept'].forEach(id => document.getElementById(id).value = '');
+    ['f-item','f-waste-weight','f-yield-weight','f-note','f-reporter','f-dept','f-branch'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-reason').value = '';
     document.getElementById('f-photos').value = '';
     document.getElementById('photoPreview').innerHTML = '';
@@ -1226,8 +1542,6 @@
 
   function switchLogTab(tab) {
     currentLogTab = tab;
-    document.getElementById('subtab-waste').className = 'log-subtab' + (tab === 'waste' ? ' active' : '');
-    document.getElementById('subtab-yield').className = 'log-subtab' + (tab === 'yield' ? ' active' : '');
     document.getElementById('log-waste-pane').style.display = tab === 'waste' ? '' : 'none';
     document.getElementById('log-yield-pane').style.display = tab === 'yield' ? '' : 'none';
     renderLog();
@@ -1288,6 +1602,7 @@
               <div class="log-name">${esc(e.item)}</div>
               <div class="log-meta">
                 <span class="tag tag-dept">${e.dept.split(' ')[0]}</span>
+                ${e.branchName ? `<span class="tag tag-neutral">🏪 ${esc(e.branchName)}</span>` : ''}
                 <span class="tag tag-neutral">📅 ${formatDate(e.date)}</span>
                 <span class="tag tag-neutral">👤 ${esc(e.reporter)}</span>
                 ${e.reason ? `<span class="tag tag-reason">⚠️ ${esc(e.reason)}</span>` : ''}
